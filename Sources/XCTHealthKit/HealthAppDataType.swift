@@ -10,20 +10,20 @@ import HealthKit
 import XCTest
 
 
-/// The ``HealthAppDataType`` defines a specific part of the Apple Health App and its corresponding `HKSample` type that is used in a UI-based test.
+/// The ``HealthAppDataType`` defines a specific part of the Apple Health app and its corresponding `HKSample` type that is used in a UI-based test.
 ///
 /// Use the ``HealthAppDataType/navigateToElement()`` and ``HealthAppDataType/addData()`` methods to navigate to the respective part of the
 /// Apple Health app and enter a new mock data element that can, e.g., be observed in the system under test.
 public enum HealthAppDataType: String, CaseIterable {
-    /// The active energy subpage of the Health App. Corresponds to `HKQuantityType(.activeEnergyBurned)` samples.
+    /// The active energy subpage of the Apple Health app. Corresponds to `HKQuantityType(.activeEnergyBurned)` samples.
     case activeEnergy = "Active Energy"
-    /// The resting heart rate subpage of the Health App. Corresponds to `HKQuantityType(.restingHeartRate)` samples.
+    /// The resting heart rate subpage of the Apple Health app. Corresponds to `HKQuantityType(.restingHeartRate)` samples.
     case restingHeartRate = "Resting Heart Rate"
-    /// The electrocardiograms subpage of the Health App. Corresponds to `HKQuantityType.electrocardiogramType()` samples.
+    /// The electrocardiograms subpage of the Apple Health app. Corresponds to `HKQuantityType.electrocardiogramType()` samples.
     case electrocardiograms = "Electrocardiograms (ECG)"
-    /// The steps subpage of the Health App. Corresponds to `HKQuantityType(.stepCount)` samples.
+    /// The steps subpage of the Apple Health app. Corresponds to `HKQuantityType(.stepCount)` samples.
     case steps = "Steps"
-    /// The pushes subpage of the Health App. Corresponds to `HKQuantityType(.pushCount)` samples.
+    /// The pushes subpage of the Apple Health app. Corresponds to `HKQuantityType(.pushCount)` samples.
     case pushes = "Pushes"
     
     
@@ -43,7 +43,7 @@ public enum HealthAppDataType: String, CaseIterable {
         }
     }
     
-    /// The category in the Apple Health App
+    /// The category in the Apple Health app
     public var hkCategory: String {
         switch self {
         case .activeEnergy, .steps, .pushes:
