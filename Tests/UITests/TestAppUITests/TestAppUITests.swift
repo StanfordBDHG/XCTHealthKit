@@ -1,5 +1,5 @@
 //
-// This source file is part of the TemplatePackage open-source project
+// This source file is part of the XCTHealthKit open-source project
 //
 // SPDX-FileCopyrightText: 2022 Stanford University and the project authors (see CONTRIBUTORS.md)
 //
@@ -7,19 +7,40 @@
 //
 
 import XCTest
+import XCTHealthKit
 
 
 class TestAppUITests: XCTestCase {
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    func testXCTHealthKitAsk() throws {
+        let app = XCUIApplication()
+        app.launch()
         
-        continueAfterFailure = false
+        app.buttons["Request HealthKit Authorization"].tap()
+        try app.handleHealthKitAuthorization()
+    }
+    
+    func testXCTHealthKitExitAppAndOpenHealth() throws {
+        try exitAppAndOpenHealth(.electrocardiograms)
+        try exitAppAndOpenHealth(.steps)
+        try exitAppAndOpenHealth(.pushes)
+        try exitAppAndOpenHealth(.restingHeartRate)
+        try exitAppAndOpenHealth(.activeEnergy)
     }
     
     
-    func testTemplatePackage() throws {
+    func testXCTHealthNumberOfHKTypeNames() throws {
         let app = XCUIApplication()
         app.launch()
-        XCTAssert(app.staticTexts["Stanford University"].waitForExistence(timeout: 0.1))
+        
+        XCTAssertEqual(
+            HealthAppDataType.numberOfHKTypeIdentifiers(in: app),
+            [
+                "HKQuantityTypeIdentifierActiveEnergyBurned": 2,
+                "HKQuantityTypeIdentifierRestingHeartRate": 1,
+                "HKDataTypeIdentifierElectrocardiogram": 3,
+                "HKQuantityTypeIdentifierStepCount": 1,
+                "HKQuantityTypeIdentifierPushCount": 0
+            ]
+        )
     }
 }

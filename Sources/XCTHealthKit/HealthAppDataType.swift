@@ -1,0 +1,152 @@
+//
+// This source file is part of the XCTHealthKit open source project
+//
+// SPDX-FileCopyrightText: 2022 Stanford University and the project authors (see CONTRIBUTORS.md)
+//
+// SPDX-License-Identifier: MIT
+//
+
+import HealthKit
+import XCTest
+
+
+/// The ``HealthAppDataType`` defines a specific part of the Apple Health app and its corresponding `HKSample` type that is used in a UI-based test.
+///
+/// Use the ``HealthAppDataType/navigateToElement()`` and ``HealthAppDataType/addData()`` methods to navigate to the respective part of the
+/// Apple Health app and enter a new mock data element that can, e.g., be observed in the system under test.
+public enum HealthAppDataType: String, CaseIterable {
+    /// The active energy subpage of the Apple Health app. Corresponds to `HKQuantityType(.activeEnergyBurned)` samples.
+    case activeEnergy = "Active Energy"
+    /// The resting heart rate subpage of the Apple Health app. Corresponds to `HKQuantityType(.restingHeartRate)` samples.
+    case restingHeartRate = "Resting Heart Rate"
+    /// The electrocardiograms subpage of the Apple Health app. Corresponds to `HKQuantityType.electrocardiogramType()` samples.
+    case electrocardiograms = "Electrocardiograms (ECG)"
+    /// The steps subpage of the Apple Health app. Corresponds to `HKQuantityType(.stepCount)` samples.
+    case steps = "Steps"
+    /// The pushes subpage of the Apple Health app. Corresponds to `HKQuantityType(.pushCount)` samples.
+    case pushes = "Pushes"
+    
+    
+    /// The string value of the corresponding sample type.
+    public var hkTypeName: String {
+        switch self {
+        case .activeEnergy:
+            return HKQuantityType(.activeEnergyBurned).identifier
+        case .restingHeartRate:
+            return HKQuantityType(.restingHeartRate).identifier
+        case .electrocardiograms:
+            return HKQuantityType.electrocardiogramType().identifier
+        case .steps:
+            return HKQuantityType(.stepCount).identifier
+        case .pushes:
+            return HKQuantityType(.pushCount).identifier
+        }
+    }
+    
+    /// The category in the Apple Health app
+    public var hkCategory: String {
+        switch self {
+        case .activeEnergy, .steps, .pushes:
+            return "Activity"
+        case .restingHeartRate, .electrocardiograms:
+            return "Heart"
+        }
+    }
+    
+    
+    /// Collects the number of occurences of HealthKit type identifier in the current user interface of the system unter test.
+    /// - Parameter app: The system unter test as an `XCUIApplication` instance.
+    /// - Returns: Returns a dictionairy containing the HealthKit type identifier as a key and the number of occurences as the value.
+    public static func numberOfHKTypeIdentifiers(in app: XCUIApplication) -> [String: Int] {
+        var observations: [String: Int] = [:]
+        for healthDataType in allCases {
+            let numberOfHKTypeNames = app.staticTexts.allElementsBoundByIndex
+                .filter {
+                    $0.label.contains(healthDataType.hkTypeName)
+                }
+                .count
+            observations[healthDataType.hkTypeName] = numberOfHKTypeNames
+        }
+        return observations
+    }
+    
+    /// Collects the number of occurences of a specific HealthKit type identifier in the current user interface of the system unter test.
+    /// - Parameters:
+    ///   - app: The system unter test as an `XCUIApplication` instance.
+    ///   - type: The type that should be identified.
+    /// - Returns: Returns the number of occurences of a specific HealthKit type identifier in the current user interface of the system unter test.
+    public static func numberOfHKTypeNames(in app: XCUIApplication, ofType type: HealthAppDataType) -> Int {
+        app.staticTexts.allElementsBoundByIndex.filter { $0.label.contains(type.hkTypeName) } .count
+    }
+    
+    
+    /// Navigates to the element in the Apple Health app
+    public func navigateToElement() throws {
+        let healthApp = XCUIApplication(bundleIdentifier: "com.apple.Health")
+        
+        if healthApp.navigationBars["Browse"].buttons["Cancel"].exists {
+            healthApp.navigationBars["Browse"].buttons["Cancel"].tap()
+        }
+        try findCategoryAndElement(in: healthApp)
+    }
+    
+    func findCategoryAndElement(in healthApp: XCUIApplication) throws {
+        // Find category:
+        let categoryStaticTextPredicate = NSPredicate(format: "label CONTAINS[cd] %@", hkCategory)
+        let categoryStaticText = healthApp.staticTexts.element(matching: categoryStaticTextPredicate).firstMatch
+        
+        if categoryStaticText.waitForExistence(timeout: 20) {
+            categoryStaticText.tap()
+        } else {
+            XCTFail("Failed to find category: \(healthApp.staticTexts.allElementsBoundByIndex)")
+            throw XCTestError(.failureWhileWaiting)
+        }
+        
+        // Find element:
+        let elementStaticTextPredicate = NSPredicate(format: "label CONTAINS[cd] %@", rawValue)
+        var elementStaticText = healthApp.staticTexts.element(matching: elementStaticTextPredicate).firstMatch
+        
+        guard elementStaticText.waitForExistence(timeout: 10) else {
+            healthApp.firstMatch.swipeUp(velocity: .slow)
+            elementStaticText = healthApp.buttons.element(matching: elementStaticTextPredicate).firstMatch
+            if elementStaticText.waitForExistence(timeout: 10) {
+                elementStaticText.tap()
+                return
+            }
+            
+            healthApp.firstMatch.swipeDown(velocity: .slow)
+            elementStaticText = healthApp.buttons.element(matching: elementStaticTextPredicate).firstMatch
+            if elementStaticText.waitForExistence(timeout: 10) {
+                elementStaticText.tap()
+                return
+            }
+            
+            XCTFail("Failed to find element in category: \(healthApp.staticTexts.allElementsBoundByIndex)")
+            throw XCTestError(.failureWhileWaiting)
+        }
+        
+        elementStaticText.tap()
+    }
+    
+    /// Enters a new mock value in the Apple Health app
+    public func addData() {
+        let healthApp = XCUIApplication(bundleIdentifier: "com.apple.Health")
+        
+        switch self {
+        case .activeEnergy:
+            healthApp.tables.textFields["cal"].tap()
+            healthApp.tables.textFields["cal"].typeText("42")
+        case .restingHeartRate:
+            healthApp.tables.textFields["BPM"].tap()
+            healthApp.tables.textFields["BPM"].typeText("80")
+        case .electrocardiograms:
+            healthApp.tables.staticTexts["High Heart Rate"].tap()
+        case .steps:
+            healthApp.tables.textFields["Steps"].tap()
+            healthApp.tables.textFields["Steps"].typeText("42")
+        case .pushes:
+            healthApp.tables.textFields["Pushes"].tap()
+            healthApp.tables.textFields["Pushes"].typeText("42")
+        }
+    }
+}
