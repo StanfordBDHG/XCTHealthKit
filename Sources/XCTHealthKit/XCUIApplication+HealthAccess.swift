@@ -10,7 +10,7 @@ import XCTest
 
 
 extension XCUIApplication {
-    /// <#Description#>
+    /// Detects and dismisses the HealthKit Authorization sheet. Fails if the sheet is not displayed.
     public func handleHealthKitAuthorization() throws {
         if !self.navigationBars["Health Access"].waitForExistence(timeout: 10) {
             print("The HealthKit View did not load after 10 seconds ... give it a second try with a timeout of 20 seconds.")

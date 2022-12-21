@@ -6,40 +6,44 @@
 // SPDX-License-Identifier: MIT
 //
 
+import HealthKit
 import XCTest
 
 
-/// <#Description#>
+/// The ``HealthAppDataType`` defines a specific part of the Apple Health App and its corresponding `HKSample` type that is used in a UI-based test.
+///
+/// Use the ``HealthAppDataType/navigateToElement()`` and ``HealthAppDataType/addData()`` methods to navigate to the respective part of the
+/// Apple Health app and enter a new mock data element that can, e.g., be observed in the system under test.
 public enum HealthAppDataType: String, CaseIterable {
-    /// <#Description#>
+    /// The active energy subpage of the Health App. Corresponds to `HKQuantityType(.activeEnergyBurned)` samples.
     case activeEnergy = "Active Energy"
-    /// <#Description#>
+    /// The resting heart rate subpage of the Health App. Corresponds to `HKQuantityType(.restingHeartRate)` samples.
     case restingHeartRate = "Resting Heart Rate"
-    /// <#Description#>
+    /// The electrocardiograms subpage of the Health App. Corresponds to `HKQuantityType.electrocardiogramType()` samples.
     case electrocardiograms = "Electrocardiograms (ECG)"
-    /// <#Description#>
+    /// The steps subpage of the Health App. Corresponds to `HKQuantityType(.stepCount)` samples.
     case steps = "Steps"
-    /// <#Description#>
+    /// The pushes subpage of the Health App. Corresponds to `HKQuantityType(.pushCount)` samples.
     case pushes = "Pushes"
     
     
-    /// <#Description#>
+    /// The string value of the corresponding sample type.
     public var hkTypeName: String {
         switch self {
         case .activeEnergy:
-            return "HKQuantityTypeIdentifierActiveEnergyBurned"
+            return HKQuantityType(.activeEnergyBurned).identifier
         case .restingHeartRate:
-            return "HKQuantityTypeIdentifierRestingHeartRate"
+            return HKQuantityType(.restingHeartRate).identifier
         case .electrocardiograms:
-            return "HKDataTypeIdentifierElectrocardiogram"
+            return HKQuantityType.electrocardiogramType().identifier
         case .steps:
-            return "HKQuantityTypeIdentifierStepCount"
+            return HKQuantityType(.stepCount).identifier
         case .pushes:
-            return "HKQuantityTypeIdentifierPushCount"
+            return HKQuantityType(.pushCount).identifier
         }
     }
     
-    /// <#Description#>
+    /// The category in the Apple Health App
     public var hkCategory: String {
         switch self {
         case .activeEnergy, .steps, .pushes:
@@ -50,13 +54,13 @@ public enum HealthAppDataType: String, CaseIterable {
     }
     
     
-    /// <#Description#>
-    /// - Parameter healthApp: <#healthApp description#>
-    /// - Returns: <#description#>
-    public static func numberOfHKTypeNames(in healthApp: XCUIApplication) -> [String: Int] {
+    /// Collects the number of occurences of HealthKit type identifier in the current user interface of the system unter test.
+    /// - Parameter app: The system unter test as an `XCUIApplication` instance.
+    /// - Returns: Returns a dictionairy containing the HealthKit type identifier as a key and the number of occurences as the value.
+    public static func numberOfHKTypeIdentifiers(in app: XCUIApplication) -> [String: Int] {
         var observations: [String: Int] = [:]
         for healthDataType in allCases {
-            let numberOfHKTypeNames = healthApp.staticTexts.allElementsBoundByIndex
+            let numberOfHKTypeNames = app.staticTexts.allElementsBoundByIndex
                 .filter {
                     $0.label.contains(healthDataType.hkTypeName)
                 }
@@ -66,17 +70,17 @@ public enum HealthAppDataType: String, CaseIterable {
         return observations
     }
     
-    /// <#Description#>
+    /// Collects the number of occurences of a specific HealthKit type identifier in the current user interface of the system unter test.
     /// - Parameters:
-    ///   - healthApp: <#healthApp description#>
-    ///   - type: <#type description#>
-    /// - Returns: <#description#>
-    public static func numberOfHKTypeNames(in healthApp: XCUIApplication, ofType type: HealthAppDataType) -> Int {
-        healthApp.staticTexts.allElementsBoundByIndex.filter { $0.label.contains(type.hkTypeName) } .count
+    ///   - app: The system unter test as an `XCUIApplication` instance.
+    ///   - type: The type that should be identified.
+    /// - Returns: Returns the number of occurences of a specific HealthKit type identifier in the current user interface of the system unter test.
+    public static func numberOfHKTypeNames(in app: XCUIApplication, ofType type: HealthAppDataType) -> Int {
+        app.staticTexts.allElementsBoundByIndex.filter { $0.label.contains(type.hkTypeName) } .count
     }
     
     
-    /// <#Description#>
+    /// Navigates to the element in the Apple Health app
     public func navigateToElement() throws {
         let healthApp = XCUIApplication(bundleIdentifier: "com.apple.Health")
         
@@ -124,7 +128,7 @@ public enum HealthAppDataType: String, CaseIterable {
         elementStaticText.tap()
     }
     
-    /// <#Description#>
+    /// Enters a new mock value in the Apple Health app
     public func addData() {
         let healthApp = XCUIApplication(bundleIdentifier: "com.apple.Health")
         

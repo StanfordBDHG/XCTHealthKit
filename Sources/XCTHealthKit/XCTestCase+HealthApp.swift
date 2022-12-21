@@ -10,8 +10,8 @@ import XCTest
 
 
 extension XCTestCase {
-    /// <#Description#>
-    /// - Parameter healthDataType: <#healthDataType description#>
+    /// Exits the system under test and opens the Health App to show the page defined by the passed in ``HealthAppDataType`` instance.
+    /// - Parameter healthDataType: The ``HealthAppDataType`` indicating the page in the Health App that should be opened.
     public func exitAppAndOpenHealth(_ healthDataType: HealthAppDataType) throws {
         XCUIDevice.shared.press(.home)
         

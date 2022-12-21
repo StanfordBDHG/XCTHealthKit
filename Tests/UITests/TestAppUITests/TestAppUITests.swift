@@ -33,7 +33,7 @@ class TestAppUITests: XCTestCase {
         app.launch()
         
         XCTAssertEqual(
-            HealthAppDataType.numberOfHKTypeNames(in: app),
+            HealthAppDataType.numberOfHKTypeIdentifiers(in: app),
             [
                 "HKQuantityTypeIdentifierActiveEnergyBurned": 2,
                 "HKQuantityTypeIdentifierRestingHeartRate": 1,
