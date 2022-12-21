@@ -1,7 +1,7 @@
 // swift-tools-version:5.7
 
 //
-// This source file is part of the TemplatePackage open source project
+// This source file is part of the XCTHealthKit open source project
 // 
 // SPDX-FileCopyrightText: 2022 Stanford University and the project authors (see CONTRIBUTORS.md)
 // 
@@ -12,21 +12,21 @@ import PackageDescription
 
 
 let package = Package(
-    name: "TemplatePackage",
+    name: "XCTHealthKit",
     platforms: [
         .iOS(.v16)
     ],
     products: [
-        .library(name: "TemplatePackage", targets: ["TemplatePackage"])
+        .library(name: "XCTHealthKit", targets: ["XCTHealthKit"])
     ],
     targets: [
         .target(
-            name: "TemplatePackage"
+            name: "XCTHealthKit"
         ),
         .testTarget(
-            name: "TemplatePackageTests",
+            name: "XCTHealthKitTests",
             dependencies: [
-                .target(name: "TemplatePackage")
+                .target(name: "XCTHealthKit")
             ]
         )
     ]

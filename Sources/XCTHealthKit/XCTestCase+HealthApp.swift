@@ -1,0 +1,113 @@
+//
+// This source file is part of the XCTHealthKit open source project
+//
+// SPDX-FileCopyrightText: 2022 Stanford University and the project authors (see CONTRIBUTORS.md)
+//
+// SPDX-License-Identifier: MIT
+//
+
+import XCTest
+
+
+extension XCTestCase {
+    /// <#Description#>
+    /// - Parameter healthDataType: <#healthDataType description#>
+    public func exitAppAndOpenHealth(_ healthDataType: HealthAppDataType) throws {
+        XCUIDevice.shared.press(.home)
+        
+        addUIInterruptionMonitor(withDescription: "System Dialog") { alert in
+            guard alert.buttons["Allow"].exists else {
+                XCTFail("Failed not dismiss alert: \(alert.staticTexts.allElementsBoundByIndex)")
+                return false
+            }
+            
+            alert.buttons["Allow"].tap()
+            return true
+        }
+        
+        let healthApp = XCUIApplication(bundleIdentifier: "com.apple.Health")
+        healthApp.terminate()
+        healthApp.activate()
+        
+        if healthApp.staticTexts["Welcome to Health"].waitForExistence(timeout: 2) {
+            handleWelcomeToHealth()
+        }
+        
+        guard healthApp.tabBars["Tab Bar"].buttons["Browse"].waitForExistence(timeout: 3) else {
+            XCTFail("Failed to identify the Add Data Button: \(healthApp.staticTexts.allElementsBoundByIndex)")
+            throw XCTestError(.failureWhileWaiting)
+        }
+        
+        healthApp.tabBars["Tab Bar"].buttons["Browse"].tap()
+        
+        try healthDataType.navigateToElement()
+        
+        guard healthApp.navigationBars.firstMatch.buttons["Add Data"].waitForExistence(timeout: 3) else {
+            XCTFail("Failed to identify the Add Data Button: \(healthApp.buttons.allElementsBoundByIndex)")
+            XCTFail("Failed to identify the Add Data Button: \(healthApp.staticTexts.allElementsBoundByIndex)")
+            throw XCTestError(.failureWhileWaiting)
+        }
+        
+        healthApp.navigationBars.firstMatch.buttons["Add Data"].tap()
+        
+        healthDataType.addData()
+        
+        guard healthApp.navigationBars.firstMatch.buttons["Add"].waitForExistence(timeout: 3) else {
+            XCTFail("Failed to identify the Add button: \(healthApp.buttons.allElementsBoundByIndex)")
+            XCTFail("Failed to identify the Add button: \(healthApp.staticTexts.allElementsBoundByIndex)")
+            throw XCTestError(.failureWhileWaiting)
+        }
+        
+        healthApp.navigationBars.firstMatch.buttons["Add"].tap()
+        
+        healthApp.terminate()
+        
+        let testApp = XCUIApplication()
+        testApp.activate()
+    }
+    
+    
+    private func handleWelcomeToHealth(alreadyRecursive: Bool = false) {
+        let healthApp = XCUIApplication(bundleIdentifier: "com.apple.Health")
+        
+        if healthApp.staticTexts["Welcome to Health"].waitForExistence(timeout: 2) {
+            XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 2))
+            healthApp.staticTexts["Continue"].tap()
+            
+            XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 2))
+            healthApp.staticTexts["Continue"].tap()
+            
+            XCTAssertTrue(healthApp.tables.buttons["Next"].waitForExistence(timeout: 2))
+            healthApp.tables.buttons["Next"].tap()
+            
+            // Sometimes the HealthApp fails to advance to the next step here.
+            // Go back and try again.
+            if !healthApp.staticTexts["Continue"].waitForExistence(timeout: 30) {
+                // Go one step back.
+                healthApp.navigationBars["WDBuddyFlowUserInfoView"].buttons["Back"].tap()
+                
+                XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 2))
+                healthApp.staticTexts["Continue"].tap()
+                
+                // Check if the Next button exists or of the view is still in a loading process.
+                if healthApp.tables.buttons["Next"].waitForExistence(timeout: 2) {
+                    healthApp.tables.buttons["Next"].tap()
+                }
+                
+                // Continue button still doesn't exist, go for terminating the app.
+                if !healthApp.staticTexts["Continue"].waitForExistence(timeout: 30) {
+                    if alreadyRecursive {
+                        XCTFail("Even the recursive process did fail. Terminate the process.")
+                    }
+                    
+                    healthApp.terminate()
+                    healthApp.activate()
+                    handleWelcomeToHealth(alreadyRecursive: true)
+                    return
+                }
+            }
+            
+            healthApp.staticTexts["Continue"].tap()
+        }
+    }
+}
