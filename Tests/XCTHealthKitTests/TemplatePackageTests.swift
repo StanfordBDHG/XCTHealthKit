@@ -6,8 +6,8 @@
 // SPDX-License-Identifier: MIT
 //
 
-@testable import XCTHealthKit
 import XCTest
+@testable import XCTHealthKit
 
 
 final class XCTHealthKitTests: XCTestCase {
