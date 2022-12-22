@@ -13,22 +13,83 @@ SPDX-License-Identifier: MIT
 [![Build and Test](https://github.com/StanfordBDHG/SwiftPackageTemplate/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/StanfordBDHG/SwiftPackageTemplate/actions/workflows/build-and-test.yml)
 [![codecov](https://codecov.io/gh/StanfordBDHG/SwiftPackageTemplate/branch/main/graph/badge.svg?token=X7BQYSUKOH)](https://codecov.io/gh/StanfordBDHG/SwiftPackageTemplate)
 
+XCTHealthKit is an XCTest-based framework to test the creation of HealthKit samples using the Apple Health App on the iPhone simulator.
 
-## How To Use This Template
+## How To Use XCTHealthKit
 
-The template repository contains a template Swift Package, including a continuous integration setup. Follow these steps to customize it to your needs:
-1. Rename the Swift Package. Be sure that you update the name in the `build-and-test.yml` GitHub Action accordingly. If you have multiple targets in your Swift Package, you need to pass the name of the Swift Package followed by an `-Package` as the scheme to the GitHub Action, e.g., `StanfordProject-Package` if your Swift Package is named `StanfordProject`.
-2. If your Swift Package does not provide any user interface or does not require an iOS application environment to function, you can remove the `UITests` application from the `Tests` folder. You need to update the `build-and-test.yml` GitHub Action accordingly by removing the GitHub Action that builds and tests the application, removing the dependency from the code coverage upload step, and removing the UI test `.xresult` input from the code coverage test.
-3. You will either need to add the [CodeCov GitHub App](https://github.com/apps/codecov) or add a codecov.io token to your [GitHub Actions Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-an-environment) following the instructions of the [Codecov GitHub Action](https://github.com/marketplace/actions/codecov#usage). The StanfordBDHG organization already has the [CodeCov GitHub App](https://github.com/apps/codecov) installed. If you do not want to cover test coverage data, you can remove the code coverage job in the `build-and-test.yml` GitHub Action.
-4. Adjust this README to describe your project and adjust the badges at the top to point to the correct GitHub Action of your repository and Codecov badge.
+You can use XCTHealthKit in your UI tests.
+The framework has the following functionalities:
 
+### Add Mock Data Using the Apple Health App
+
+Use the `XCTestCase`'s `exitAppAndOpenHealth(_: HealthAppDataType) throws` function passing in an `HealthAppDataType` instance to add mock data using the Apple Health app:
+```swift
+import XCTest
+import XCTHealthKit
+
+
+class HealthKitUITests: XCTestCase {
+    func testAddMockDataUsingTheAppleHealthApp() throws {
+        try exitAppAndOpenHealth(.electrocardiograms)
+        try exitAppAndOpenHealth(.steps)
+        try exitAppAndOpenHealth(.pushes)
+        try exitAppAndOpenHealth(.restingHeartRate)
+        try exitAppAndOpenHealth(.activeEnergy)
+    }
+}
+```
+
+### Handle the HealthKit Authorization Sheet
+
+You can use the `XCUIApplication`'s `handleHealthKitAuthorization() throws` function to handle the HealthKit authorization sheet:
+```swift
+import XCTest
+import XCTHealthKit
+
+
+class HealthKitUITests: XCTestCase {
+    func testHandleTheHealthKitAuthorizationSheet() throws {
+        let app = XCUIApplication()
+        app.launch()
+        
+        app.buttons["Request HealthKit Authorization"].tap()
+        try app.handleHealthKitAuthorization()
+    }
+}
+```
+
+### Inspect the System Under Test if it Contains HKTypeIdentifier Static Text Elements
+
+You can use the `XCUIApplication`'s `numberOfHKTypeIdentifiers() throws` function to inspect the system under test if it contains HKTypeIdentifier static text elements:
+```swift
+import XCTest
+import XCTHealthKit
+
+
+class HealthKitUITests: XCTestCase {
+    func testInspectTheSystemUnderTestIfItContainsHKTypeIdentifierStaticTextElements() throws {
+        let app = XCUIApplication()
+        app.launch()
+        
+        XCTAssertEqual(
+            HealthAppDataType.numberOfHKTypeIdentifiers(in: app),
+            [
+                "HKQuantityTypeIdentifierActiveEnergyBurned": 2,
+                "HKQuantityTypeIdentifierRestingHeartRate": 1,
+                "HKDataTypeIdentifierElectrocardiogram": 3,
+                "HKQuantityTypeIdentifierStepCount": 1
+            ]
+        )
+    }
+}
+```
 
 ## Installation
-XCTHealthKit can be installed into your Xcode project using [Swift Package Manager](https://github.com/apple/swift-package-manager).
 
-1. In Xcode 14 and newer (requires Swift 5.7), go to “File” » “Add Packages...”
-2. Enter the URL to this GitHub repository, then select the `XCTHealthKit` package to install.
+XCTHealthKit can be added tp your Xcode project or Swift Package using the [Swift Package Manager](https://github.com/apple/swift-package-manager).
 
+For an Xcode project, follow the instructions on [Adding package dependencies to your app](https://developer.apple.com/documentation/xcode/adding-package-dependencies-to-your-app).
+You can take a look at the [Swift Package Manager documentation about defining dependencies for your Swift Package](https://github.com/apple/swift-package-manager/blob/main/Documentation/Usage.md#defining-dependencies).
 
 ## License
 This project is licensed under the MIT License. See [Licenses](https://github.com/StanfordBDHG/XCTHealthKit/tree/main/LICENSES) for more information.
