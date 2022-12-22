@@ -54,32 +54,6 @@ public enum HealthAppDataType: String, CaseIterable {
     }
     
     
-    /// Collects the number of occurences of HealthKit type identifier in the current user interface of the system unter test.
-    /// - Parameter app: The system unter test as an `XCUIApplication` instance.
-    /// - Returns: Returns a dictionairy containing the HealthKit type identifier as a key and the number of occurences as the value.
-    public static func numberOfHKTypeIdentifiers(in app: XCUIApplication) -> [String: Int] {
-        var observations: [String: Int] = [:]
-        for healthDataType in allCases {
-            let numberOfHKTypeNames = app.staticTexts.allElementsBoundByIndex
-                .filter {
-                    $0.label.contains(healthDataType.hkTypeName)
-                }
-                .count
-            observations[healthDataType.hkTypeName] = numberOfHKTypeNames
-        }
-        return observations
-    }
-    
-    /// Collects the number of occurences of a specific HealthKit type identifier in the current user interface of the system unter test.
-    /// - Parameters:
-    ///   - app: The system unter test as an `XCUIApplication` instance.
-    ///   - type: The type that should be identified.
-    /// - Returns: Returns the number of occurences of a specific HealthKit type identifier in the current user interface of the system unter test.
-    public static func numberOfHKTypeNames(in app: XCUIApplication, ofType type: HealthAppDataType) -> Int {
-        app.staticTexts.allElementsBoundByIndex.filter { $0.label.contains(type.hkTypeName) } .count
-    }
-    
-    
     /// Navigates to the element in the Apple Health app
     public func navigateToElement() throws {
         let healthApp = XCUIApplication(bundleIdentifier: "com.apple.Health")
