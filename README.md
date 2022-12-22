@@ -10,8 +10,8 @@ SPDX-License-Identifier: MIT
 
 # XCTHealthKit
 
-[![Build and Test](https://github.com/StanfordBDHG/SwiftPackageTemplate/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/StanfordBDHG/SwiftPackageTemplate/actions/workflows/build-and-test.yml)
-[![codecov](https://codecov.io/gh/StanfordBDHG/SwiftPackageTemplate/branch/main/graph/badge.svg?token=X7BQYSUKOH)](https://codecov.io/gh/StanfordBDHG/SwiftPackageTemplate)
+[![Build and Test](https://github.com/StanfordBDHG/XCTHealthKit/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/StanfordBDHG/XCTHealthKit/actions/workflows/build-and-test.yml)
+[![codecov](https://codecov.io/gh/StanfordBDHG/XCTHealthKit/branch/main/graph/badge.svg?token=boAhFgMIOp)](https://codecov.io/gh/StanfordBDHG/XCTHealthKit)
 
 XCTHealthKit is an XCTest-based framework to test the creation of HealthKit samples using the Apple Health App on the iPhone simulator.
 
