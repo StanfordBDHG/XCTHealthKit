@@ -19,10 +19,13 @@ SPDX-License-Identifier: MIT
 
 XCTHealthKit is an XCTest-based framework to test the creation of HealthKit samples using the Apple Health App on the iPhone simulator.
 
+
 ## How To Use XCTHealthKit
 
-You can use XCTHealthKit in your UI tests.
+You can use XCTHealthKit in your UI tests. The [API documentation](https://swiftpackageindex.com/StanfordBDHG/XCTHealthKit/documentation) provides a detailed overview of the public interface of XCTHealthKit.
+
 The framework has the following functionalities:
+
 
 ### Add Mock Data Using the Apple Health App
 
@@ -88,6 +91,7 @@ class HealthKitUITests: XCTestCase {
 }
 ```
 
+
 ## Installation
 
 The project can be added to your Xcode project or Swift Package using the [Swift Package Manager](https://github.com/apple/swift-package-manager).
@@ -98,10 +102,12 @@ The project can be added to your Xcode project or Swift Package using the [Swift
 
 
 ## License
+
 This project is licensed under the MIT License. See [Licenses](https://github.com/StanfordBDHG/XCTHealthKit/tree/main/LICENSES) for more information.
 
 
 ## Contributors
+
 This project is developed as part of the Stanford Byers Center for Biodesign at Stanford University.
 See [CONTRIBUTORS.md](https://github.com/StanfordBDHG/XCTHealthKit/tree/main/CONTRIBUTORS.md) for a full list of all XCTHealthKit contributors.
 
