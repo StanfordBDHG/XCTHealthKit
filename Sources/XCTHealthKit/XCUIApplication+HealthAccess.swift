@@ -14,7 +14,6 @@ extension XCUIApplication {
     public func handleHealthKitAuthorization() throws {
         if !self.navigationBars["Health Access"].waitForExistence(timeout: 10) {
             print("The HealthKit View did not load after 10 seconds ... give it a second try with a timeout of 20 seconds.")
-            self.buttons["Ask for authorization"].tap()
         }
         if self.navigationBars["Health Access"].waitForExistence(timeout: 20) {
             self.tables.staticTexts["Turn On All"].tap()
