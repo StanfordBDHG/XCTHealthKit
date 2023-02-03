@@ -80,7 +80,7 @@ public enum HealthAppDataType: String, CaseIterable {
         let elementStaticTextPredicate = NSPredicate(format: "label CONTAINS[cd] %@", rawValue)
         var elementStaticText = healthApp.staticTexts.element(matching: elementStaticTextPredicate).firstMatch
         
-        guard elementStaticText.waitForExistence(timeout: 10) else {
+        guard elementStaticText.waitForExistence(timeout: 20) else {
             healthApp.firstMatch.swipeUp(velocity: .slow)
             elementStaticText = healthApp.buttons.element(matching: elementStaticTextPredicate).firstMatch
             if elementStaticText.waitForExistence(timeout: 10) {
