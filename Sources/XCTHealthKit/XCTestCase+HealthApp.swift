@@ -82,7 +82,7 @@ extension XCTestCase {
             
             // Sometimes the HealthApp fails to advance to the next step here.
             // Go back and try again.
-            if !healthApp.staticTexts["Continue"].waitForExistence(timeout: 30) {
+            if !healthApp.staticTexts["Continue"].waitForExistence(timeout: 40) {
                 // Go one step back.
                 healthApp.navigationBars["WDBuddyFlowUserInfoView"].buttons["Back"].tap()
                 
@@ -95,7 +95,7 @@ extension XCTestCase {
                 }
                 
                 // Continue button still doesn't exist, go for terminating the app.
-                if !healthApp.staticTexts["Continue"].waitForExistence(timeout: 30) {
+                if !healthApp.staticTexts["Continue"].waitForExistence(timeout: 40) {
                     if alreadyRecursive {
                         XCTFail("Even the recursive process did fail. Terminate the process.")
                     }
