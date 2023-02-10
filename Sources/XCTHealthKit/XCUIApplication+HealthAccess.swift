@@ -23,8 +23,8 @@ extension XCUIApplication {
 
     /// Collects the number of occurences of HealthKit type identifier in the current user interface of the system unter test.
     /// - Returns: Returns a dictionairy containing the HealthKit type identifier as a key and the number of occurences as the value.
-    public func numberOfHKTypeIdentifiers() -> [String: Int] {
-        var observations: [String: Int] = [:]
+    public func numberOfHKTypeIdentifiers() -> [HealthAppDataType: Int] {
+        var observations: [HealthAppDataType: Int] = [:]
         for healthDataType in HealthAppDataType.allCases {
             let numberOfHKTypeNames = self.staticTexts.allElementsBoundByIndex
                 .filter {
@@ -32,7 +32,7 @@ extension XCUIApplication {
                 }
                 .count
             if numberOfHKTypeNames > 0 {
-                observations[healthDataType.hkTypeName] = numberOfHKTypeNames
+                observations[healthDataType] = numberOfHKTypeNames
             }
         }
         return observations

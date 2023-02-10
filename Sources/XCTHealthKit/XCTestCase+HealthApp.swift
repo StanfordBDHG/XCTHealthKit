@@ -13,8 +13,6 @@ extension XCTestCase {
     /// Exits the system under test and opens the Apple Health app to show the page defined by the passed in ``HealthAppDataType`` instance.
     /// - Parameter healthDataType: The ``HealthAppDataType`` indicating the page in the Apple Health app that should be opened.
     public func exitAppAndOpenHealth(_ healthDataType: HealthAppDataType) throws {
-        XCUIDevice.shared.press(.home)
-        
         addUIInterruptionMonitor(withDescription: "System Dialog") { alert in
             guard alert.buttons["Allow"].exists else {
                 XCTFail("Failed not dismiss alert: \(alert.staticTexts.allElementsBoundByIndex)")
@@ -26,7 +24,6 @@ extension XCTestCase {
         }
         
         let healthApp = XCUIApplication(bundleIdentifier: "com.apple.Health")
-        healthApp.terminate()
         healthApp.activate()
         
         if healthApp.staticTexts["Welcome to Health"].waitForExistence(timeout: 2) {
@@ -39,6 +36,8 @@ extension XCTestCase {
         }
         
         healthApp.tabBars["Tab Bar"].buttons["Browse"].tap()
+        healthApp.tabBars["Tab Bar"].buttons["Browse"].tap()
+        XCTAssert(healthApp.navigationBars.staticTexts["Browse"].waitForExistence(timeout: 10))
         
         try healthDataType.navigateToElement()
         
@@ -59,11 +58,6 @@ extension XCTestCase {
         }
         
         healthApp.navigationBars.firstMatch.buttons["Add"].tap()
-        
-        healthApp.terminate()
-        
-        let testApp = XCUIApplication()
-        testApp.activate()
     }
     
     
