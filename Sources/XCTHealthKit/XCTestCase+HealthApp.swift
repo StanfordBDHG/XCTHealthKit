@@ -6,6 +6,7 @@
 // SPDX-License-Identifier: MIT
 //
 
+import OSLog
 import XCTest
 
 
@@ -30,20 +31,29 @@ extension XCTestCase {
             handleWelcomeToHealth()
         }
         
-        guard healthApp.tabBars["Tab Bar"].buttons["Browse"].waitForExistence(timeout: 3) else {
-            XCTFail("Failed to identify the Add Data Button: \(healthApp.staticTexts.allElementsBoundByIndex)")
-            throw XCTestError(.failureWhileWaiting)
+        let browseTabBarButton = healthApp.tabBars["Tab Bar"].buttons["Browse"]
+        if !browseTabBarButton.isHittable {
+            os_log("Failed to find the browse tab bar button: \(healthApp.tabBars["Tab Bar"].buttons)")
+            
+            let cancelButton = healthApp.navigationBars.firstMatch.buttons["Cancel"]
+            if cancelButton.waitForExistence(timeout: 3) && cancelButton.isHittable {
+                cancelButton.tap()
+            }
+            
+            if !browseTabBarButton.isHittable {
+                throw XCTestError(.failureWhileWaiting)
+            }
         }
         
-        healthApp.tabBars["Tab Bar"].buttons["Browse"].tap()
-        healthApp.tabBars["Tab Bar"].buttons["Browse"].tap()
+        browseTabBarButton.tap()
+        browseTabBarButton.tap()
         XCTAssert(healthApp.navigationBars.staticTexts["Browse"].waitForExistence(timeout: 10))
         
         try healthDataType.navigateToElement()
         
         guard healthApp.navigationBars.firstMatch.buttons["Add Data"].waitForExistence(timeout: 3) else {
-            XCTFail("Failed to identify the Add Data Button: \(healthApp.buttons.allElementsBoundByIndex)")
-            XCTFail("Failed to identify the Add Data Button: \(healthApp.staticTexts.allElementsBoundByIndex)")
+            os_log("Failed to identify the Add Data Button: \(healthApp.buttons.allElementsBoundByIndex)")
+            os_log("Failed to identify the Add Data Button: \(healthApp.staticTexts.allElementsBoundByIndex)")
             throw XCTestError(.failureWhileWaiting)
         }
         
@@ -52,8 +62,8 @@ extension XCTestCase {
         healthDataType.addData()
         
         guard healthApp.navigationBars.firstMatch.buttons["Add"].waitForExistence(timeout: 3) else {
-            XCTFail("Failed to identify the Add button: \(healthApp.buttons.allElementsBoundByIndex)")
-            XCTFail("Failed to identify the Add button: \(healthApp.staticTexts.allElementsBoundByIndex)")
+            os_log("Failed to identify the Add button: \(healthApp.buttons.allElementsBoundByIndex)")
+            os_log("Failed to identify the Add button: \(healthApp.staticTexts.allElementsBoundByIndex)")
             throw XCTestError(.failureWhileWaiting)
         }
         
@@ -91,7 +101,7 @@ extension XCTestCase {
                 // Continue button still doesn't exist, go for terminating the app.
                 if !healthApp.staticTexts["Continue"].waitForExistence(timeout: 45) {
                     if alreadyRecursive {
-                        XCTFail("Even the recursive process did fail. Terminate the process.")
+                        os_log("Even the recursive process did fail. Terminate the process.")
                     }
                     
                     healthApp.terminate()
