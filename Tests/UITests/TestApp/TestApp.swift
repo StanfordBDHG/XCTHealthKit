@@ -30,13 +30,6 @@ struct UITestsApp: App {
                         try await healthStore.requestAuthorization(toShare: [], read: [stepType])
                     }
                 }
-                Text("HKQuantityTypeIdentifierActiveEnergyBurned")
-                Text("HKQuantityTypeIdentifierActiveEnergyBurned")
-                Text("HKQuantityTypeIdentifierRestingHeartRate")
-                Text("HKDataTypeIdentifierElectrocardiogram")
-                Text("HKDataTypeIdentifierElectrocardiogram")
-                Text("HKDataTypeIdentifierElectrocardiogram")
-                Text("HKQuantityTypeIdentifierStepCount")
             }
         }
     }

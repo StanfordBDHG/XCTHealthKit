@@ -20,29 +20,4 @@ extension XCUIApplication {
             self.navigationBars["Health Access"].buttons["Allow"].tap()
         }
     }
-
-    /// Collects the number of occurences of HealthKit type identifier in the current user interface of the system unter test.
-    /// - Returns: Returns a dictionairy containing the HealthKit type identifier as a key and the number of occurences as the value.
-    public func numberOfHKTypeIdentifiers() -> [HealthAppDataType: Int] {
-        var observations: [HealthAppDataType: Int] = [:]
-        for healthDataType in HealthAppDataType.allCases {
-            let numberOfHKTypeNames = self.staticTexts.allElementsBoundByIndex
-                .filter {
-                    $0.label.contains(healthDataType.hkTypeName)
-                }
-                .count
-            if numberOfHKTypeNames > 0 {
-                observations[healthDataType] = numberOfHKTypeNames
-            }
-        }
-        return observations
-    }
-    
-    /// Collects the number of occurences of a specific HealthKit type identifier in the current user interface of the system unter test.
-    /// - Parameters:
-    ///   - type: The type that should be identified.
-    /// - Returns: Returns the number of occurences of a specific HealthKit type identifier in the current user interface of the system unter test.
-    public func numberOfHKTypeNames(ofType type: HealthAppDataType) -> Int {
-        self.staticTexts.allElementsBoundByIndex.filter { $0.label.contains(type.hkTypeName) } .count
-    }
 }

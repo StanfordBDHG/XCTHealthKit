@@ -26,20 +26,4 @@ class TestAppUITests: XCTestCase {
         try exitAppAndOpenHealth(.restingHeartRate)
         try exitAppAndOpenHealth(.activeEnergy)
     }
-    
-    
-    func testXCTHealthNumberOfHKTypeNames() throws {
-        let app = XCUIApplication()
-        app.launch()
-        
-        XCTAssertEqual(
-            app.numberOfHKTypeIdentifiers(),
-            [
-                .activeEnergy: 2,
-                .restingHeartRate: 1,
-                .electrocardiograms: 3,
-                .steps: 1
-            ]
-        )
-    }
 }
