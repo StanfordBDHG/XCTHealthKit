@@ -52,29 +52,3 @@ class HealthKitUITests: XCTestCase {
     }
 }
 ```
-
-### Inspect the System Under Test if it Contains HKTypeIdentifier Static Text Elements
-
-You can use the `XCUIApplication`'s `numberOfHKTypeIdentifiers() throws` function to inspect the system under test if it contains HKTypeIdentifier static text elements:
-```swift
-import XCTest
-import XCTHealthKit
-
-
-class HealthKitUITests: XCTestCase {
-    func testInspectTheSystemUnderTestIfItContainsHKTypeIdentifierStaticTextElements() throws {
-        let app = XCUIApplication()
-        app.launch()
-        
-        XCTAssertEqual(
-            HealthAppDataType.numberOfHKTypeIdentifiers(in: app),
-            [
-                .activeEnergy: 1,
-                .restingHeartRate: 1,
-                .electrocardiograms: 2,
-                .steps: 1
-            ]
-        )
-    }
-}
-```
