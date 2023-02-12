@@ -69,8 +69,12 @@ public enum HealthAppDataType: String, CaseIterable {
         let categoryStaticTextPredicate = NSPredicate(format: "label CONTAINS[cd] %@", hkCategory)
         let categoryStaticText = healthApp.staticTexts.element(matching: categoryStaticTextPredicate).firstMatch
         
-        if categoryStaticText.waitForExistence(timeout: 40) {
+        if categoryStaticText.waitForExistence(timeout: 60) {
             categoryStaticText.tap()
+            if !healthApp.navigationBars.staticTexts[hkCategory].waitForExistence(timeout: 20) {
+                categoryStaticText.tap()
+            }
+            XCTAssert(healthApp.navigationBars.staticTexts[hkCategory].waitForExistence(timeout: 20))
         } else {
             XCTFail("Failed to find category: \(healthApp.staticTexts.allElementsBoundByIndex)")
             throw XCTestError(.failureWhileWaiting)
