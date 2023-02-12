@@ -7,6 +7,7 @@
 //
 
 import HealthKit
+import OSLog
 import XCTest
 
 
@@ -76,7 +77,7 @@ public enum HealthAppDataType: String, CaseIterable {
             }
             XCTAssert(healthApp.navigationBars.staticTexts[hkCategory].waitForExistence(timeout: 20))
         } else {
-            XCTFail("Failed to find category: \(healthApp.staticTexts.allElementsBoundByIndex)")
+            os_log("Failed to find category: \(healthApp.staticTexts.allElementsBoundByIndex)")
             throw XCTestError(.failureWhileWaiting)
         }
         
@@ -99,7 +100,7 @@ public enum HealthAppDataType: String, CaseIterable {
                 return
             }
             
-            XCTFail("Failed to find element in category: \(healthApp.staticTexts.allElementsBoundByIndex)")
+            os_log("Failed to find element in category: \(healthApp.staticTexts.allElementsBoundByIndex)")
             throw XCTestError(.failureWhileWaiting)
         }
         

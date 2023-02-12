@@ -7,13 +7,14 @@
 //
 
 import XCTest
+import XCTestExtensions
 import XCTHealthKit
 
 
 class TestAppUITests: XCTestCase {
     func testXCTHealthKitAsk() throws {
         let app = XCUIApplication()
-        app.launch()
+        app.deleteAndLaunch(withSpringboardAppName: "TestApp")
         
         app.buttons["Request HealthKit Authorization"].tap()
         try app.handleHealthKitAuthorization()
@@ -22,8 +23,15 @@ class TestAppUITests: XCTestCase {
     func testXCTHealthKitExitAppAndOpenHealth() throws {
         try exitAppAndOpenHealth(.electrocardiograms)
         try exitAppAndOpenHealth(.steps)
+        
+        let healthApp = XCUIApplication(bundleIdentifier: "com.apple.Health")
+        healthApp.terminate()
+        
         try exitAppAndOpenHealth(.pushes)
         try exitAppAndOpenHealth(.restingHeartRate)
+        
+        healthApp.terminate()
+        
         try exitAppAndOpenHealth(.activeEnergy)
     }
 }

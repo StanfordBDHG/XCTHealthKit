@@ -11,6 +11,7 @@
 		2F87F9EE2952F10600810247 /* XCTHealthKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2F87F9ED2952F10600810247 /* XCTHealthKit */; };
 		2F8A431329130A8C005D2B8F /* TestAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8A431229130A8C005D2B8F /* TestAppUITests.swift */; };
 		2FA7382C290ADFAA007ACEB9 /* TestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA7382B290ADFAA007ACEB9 /* TestApp.swift */; };
+		2FED18F0299954C600A51A28 /* XCTestExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 2FED18EF299954C600A51A28 /* XCTestExtensions */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +48,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2F87F9EE2952F10600810247 /* XCTHealthKit in Frameworks */,
+				2FED18F0299954C600A51A28 /* XCTestExtensions in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -137,6 +139,7 @@
 			name = TestAppUITests;
 			packageProductDependencies = (
 				2F87F9ED2952F10600810247 /* XCTHealthKit */,
+				2FED18EF299954C600A51A28 /* XCTestExtensions */,
 			);
 			productName = ExampleUITests;
 			productReference = 2F6D13AC28F5F386007C25D6 /* TestAppUITests.xctest */;
@@ -170,6 +173,9 @@
 				Base,
 			);
 			mainGroup = 2F6D138928F5F384007C25D6;
+			packageReferences = (
+				2FED18EE299954C600A51A28 /* XCRemoteSwiftPackageReference "XCTestExtensions" */,
+			);
 			productRefGroup = 2F6D139328F5F384007C25D6 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -476,10 +482,26 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		2FED18EE299954C600A51A28 /* XCRemoteSwiftPackageReference "XCTestExtensions" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StanfordBDHG/XCTestExtensions";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 0.2.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		2F87F9ED2952F10600810247 /* XCTHealthKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = XCTHealthKit;
+		};
+		2FED18EF299954C600A51A28 /* XCTestExtensions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2FED18EE299954C600A51A28 /* XCRemoteSwiftPackageReference "XCTestExtensions" */;
+			productName = XCTestExtensions;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
