@@ -14,6 +14,11 @@ extension XCTestCase {
     /// Exits the system under test and opens the Apple Health app to show the page defined by the passed in ``HealthAppDataType`` instance.
     /// - Parameter healthDataType: The ``HealthAppDataType`` indicating the page in the Apple Health app that should be opened.
     public func exitAppAndOpenHealth(_ healthDataType: HealthAppDataType) throws {
+        try exitAppAndOpenHealthThatMightBeRepeated(healthDataType)
+    }
+    
+    
+    private func exitAppAndOpenHealthThatMightBeRepeated(_ healthDataType: HealthAppDataType, alreadyRecursive: Bool = false) throws {
         addUIInterruptionMonitor(withDescription: "System Dialog") { alert in
             guard alert.buttons["Allow"].exists else {
                 XCTFail("Failed not dismiss alert: \(alert.staticTexts.allElementsBoundByIndex)")
@@ -27,7 +32,7 @@ extension XCTestCase {
         let healthApp = XCUIApplication(bundleIdentifier: "com.apple.Health")
         healthApp.activate()
         
-        if healthApp.staticTexts["Welcome to Health"].waitForExistence(timeout: 2) {
+        if healthApp.staticTexts["Welcome to Health"].waitForExistence(timeout: 5) {
             handleWelcomeToHealth()
         }
         
@@ -41,7 +46,13 @@ extension XCTestCase {
             }
             
             if !browseTabBarButton.isHittable {
-                throw XCTestError(.failureWhileWaiting)
+                healthApp.terminate()
+                
+                if alreadyRecursive {
+                    throw XCTestError(.failureWhileWaiting)
+                } else {
+                    try exitAppAndOpenHealthThatMightBeRepeated(healthDataType, alreadyRecursive: true)
+                }
             }
         }
         
@@ -70,36 +81,35 @@ extension XCTestCase {
         healthApp.navigationBars.firstMatch.buttons["Add"].tap()
     }
     
-    
     private func handleWelcomeToHealth(alreadyRecursive: Bool = false) {
         let healthApp = XCUIApplication(bundleIdentifier: "com.apple.Health")
         
-        if healthApp.staticTexts["Welcome to Health"].waitForExistence(timeout: 2) {
-            XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 2))
+        if healthApp.staticTexts["Welcome to Health"].waitForExistence(timeout: 5) {
+            XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 5))
             healthApp.staticTexts["Continue"].tap()
             
-            XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 2))
+            XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 5))
             healthApp.staticTexts["Continue"].tap()
             
-            XCTAssertTrue(healthApp.tables.buttons["Next"].waitForExistence(timeout: 2))
+            XCTAssertTrue(healthApp.tables.buttons["Next"].waitForExistence(timeout: 5))
             healthApp.tables.buttons["Next"].tap()
             
             // Sometimes the HealthApp fails to advance to the next step here.
             // Go back and try again.
-            if !healthApp.staticTexts["Continue"].waitForExistence(timeout: 45) {
+            if !healthApp.staticTexts["Continue"].waitForExistence(timeout: 60) {
                 // Go one step back.
                 healthApp.navigationBars["WDBuddyFlowUserInfoView"].buttons["Back"].tap()
                 
-                XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 2))
+                XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 5))
                 healthApp.staticTexts["Continue"].tap()
                 
                 // Check if the Next button exists or of the view is still in a loading process.
-                if healthApp.tables.buttons["Next"].waitForExistence(timeout: 2) {
+                if healthApp.tables.buttons["Next"].waitForExistence(timeout: 5) {
                     healthApp.tables.buttons["Next"].tap()
                 }
                 
                 // Continue button still doesn't exist, go for terminating the app.
-                if !healthApp.staticTexts["Continue"].waitForExistence(timeout: 45) {
+                if !healthApp.staticTexts["Continue"].waitForExistence(timeout: 60) {
                     if alreadyRecursive {
                         os_log("Even the recursive process did fail. Terminate the process.")
                     }
@@ -111,7 +121,16 @@ extension XCTestCase {
                 }
             }
             
+            // Try to turn off the Health Notifications Trends Switch:
+            let trendsSwitch = healthApp.switches.firstMatch
+            if trendsSwitch.waitForExistence(timeout: 5) && trendsSwitch.isHittable {
+                trendsSwitch.tap()
+            }
+            
+            XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 5))
             healthApp.staticTexts["Continue"].tap()
+            
+            
         }
     }
 }
