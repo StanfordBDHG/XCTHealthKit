@@ -19,16 +19,6 @@ extension XCTestCase {
     
     
     private func exitAppAndOpenHealthThatMightBeRepeated(_ healthDataType: HealthAppDataType, alreadyRecursive: Bool = false) throws {
-        addUIInterruptionMonitor(withDescription: "System Dialog") { alert in
-            guard alert.buttons["Allow"].exists else {
-                XCTFail("Failed not dismiss alert: \(alert.staticTexts.allElementsBoundByIndex)")
-                return false
-            }
-            
-            alert.buttons["Allow"].tap()
-            return true
-        }
-        
         let healthApp = XCUIApplication(bundleIdentifier: "com.apple.Health")
         healthApp.activate()
         
@@ -82,6 +72,16 @@ extension XCTestCase {
     }
     
     private func handleWelcomeToHealth(alreadyRecursive: Bool = false) {
+        addUIInterruptionMonitor(withDescription: "System Dialog") { alert in
+            guard alert.buttons["Allow"].exists else {
+                XCTFail("Failed not dismiss alert: \(alert.staticTexts.allElementsBoundByIndex)")
+                return false
+            }
+            
+            alert.buttons["Allow"].tap()
+            return true
+        }
+        
         let healthApp = XCUIApplication(bundleIdentifier: "com.apple.Health")
         
         if healthApp.staticTexts["Welcome to Health"].waitForExistence(timeout: 5) {
@@ -129,8 +129,6 @@ extension XCTestCase {
             
             XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 5))
             healthApp.staticTexts["Continue"].tap()
-            
-            
         }
     }
 }
