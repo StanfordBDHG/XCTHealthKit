@@ -70,32 +70,40 @@ public enum HealthAppDataType: String, CaseIterable {
         let categoryStaticTextPredicate = NSPredicate(format: "label CONTAINS[cd] %@", hkCategory)
         let categoryStaticText = healthApp.staticTexts.element(matching: categoryStaticTextPredicate).firstMatch
         
-        if categoryStaticText.waitForExistence(timeout: 60) {
-            categoryStaticText.tap()
-            if !healthApp.navigationBars.staticTexts[hkCategory].waitForExistence(timeout: 20) {
-                categoryStaticText.tap()
+        if categoryStaticText.waitForExistence(timeout: 30), !categoryStaticText.isHittable {
+            healthApp.swipeUp()
+            
+            if !categoryStaticText.isHittable {
+                healthApp.swipeUp()
             }
-            XCTAssert(healthApp.navigationBars.staticTexts[hkCategory].waitForExistence(timeout: 20))
-        } else {
+        }
+        
+        categoryStaticText.tap()
+        
+        // Retry ...
+        if !healthApp.navigationBars.staticTexts[hkCategory].waitForExistence(timeout: 20) {
+            categoryStaticText.tap()
+        }
+        
+        guard healthApp.navigationBars.staticTexts[hkCategory].waitForExistence(timeout: 20) else {
             os_log("Failed to find category: \(healthApp.staticTexts.allElementsBoundByIndex)")
             throw XCTestError(.failureWhileWaiting)
         }
         
+        
         // Find element:
         let elementStaticTextPredicate = NSPredicate(format: "label CONTAINS[cd] %@", rawValue)
-        var elementStaticText = healthApp.staticTexts.element(matching: elementStaticTextPredicate).firstMatch
+        let elementStaticText = healthApp.staticTexts.element(matching: elementStaticTextPredicate).firstMatch
         
-        guard elementStaticText.waitForExistence(timeout: 20) else {
-            healthApp.firstMatch.swipeUp(velocity: .slow)
-            elementStaticText = healthApp.buttons.element(matching: elementStaticTextPredicate).firstMatch
-            if elementStaticText.waitForExistence(timeout: 10) {
+        guard elementStaticText.waitForExistence(timeout: 30), elementStaticText.isHittable else {
+            healthApp.swipeUp()
+            if elementStaticText.waitForExistence(timeout: 10), elementStaticText.isHittable {
                 elementStaticText.tap()
                 return
             }
             
-            healthApp.firstMatch.swipeDown(velocity: .slow)
-            elementStaticText = healthApp.buttons.element(matching: elementStaticTextPredicate).firstMatch
-            if elementStaticText.waitForExistence(timeout: 10) {
+            healthApp.swipeUp()
+            if elementStaticText.waitForExistence(timeout: 10), elementStaticText.isHittable {
                 elementStaticText.tap()
                 return
             }
