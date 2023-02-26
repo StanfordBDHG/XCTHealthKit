@@ -27,7 +27,7 @@ extension XCTestCase {
         }
         
         let browseTabBarButton = healthApp.tabBars["Tab Bar"].buttons["Browse"]
-        if !browseTabBarButton.isHittable {
+        if !browseTabBarButton.waitForExistence(timeout: 5) && !browseTabBarButton.isHittable {
             os_log("Failed to find the browse tab bar button: \(healthApp.tabBars["Tab Bar"].buttons)")
             
             let cancelButton = healthApp.navigationBars.firstMatch.buttons["Cancel"]
