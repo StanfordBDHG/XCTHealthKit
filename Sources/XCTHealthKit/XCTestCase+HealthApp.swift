@@ -69,6 +69,16 @@ extension XCTestCase {
         }
         
         healthApp.navigationBars.firstMatch.buttons["Add"].tap()
+        
+        if !healthApp.navigationBars.firstMatch.buttons["Add Data"].waitForExistence(timeout: 20) {
+            healthApp.terminate()
+            
+            if alreadyRecursive {
+                throw XCTestError(.failureWhileWaiting)
+            } else {
+                try exitAppAndOpenHealthThatMightBeRepeated(healthDataType, alreadyRecursive: true)
+            }
+        }
     }
     
     private func handleWelcomeToHealth(alreadyRecursive: Bool = false) {
