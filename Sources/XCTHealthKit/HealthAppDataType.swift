@@ -121,17 +121,22 @@ public enum HealthAppDataType: String, CaseIterable {
         
         switch self {
         case .activeEnergy:
+            XCTAssert(healthApp.tables.textFields["cal"].waitForExistence(timeout: 2))
             healthApp.tables.textFields["cal"].tap()
             healthApp.tables.textFields["cal"].typeText("42")
         case .restingHeartRate:
+            XCTAssert(healthApp.tables.textFields["BPM"].waitForExistence(timeout: 2))
             healthApp.tables.textFields["BPM"].tap()
             healthApp.tables.textFields["BPM"].typeText("80")
         case .electrocardiograms:
+            XCTAssert(healthApp.tables.staticTexts["High Heart Rate"].waitForExistence(timeout: 2))
             healthApp.tables.staticTexts["High Heart Rate"].tap()
         case .steps:
+            XCTAssert(healthApp.tables.textFields["Steps"].waitForExistence(timeout: 2))
             healthApp.tables.textFields["Steps"].tap()
             healthApp.tables.textFields["Steps"].typeText("42")
         case .pushes:
+            XCTAssert(healthApp.tables.textFields["Pushes"].waitForExistence(timeout: 2))
             healthApp.tables.textFields["Pushes"].tap()
             healthApp.tables.textFields["Pushes"].typeText("42")
         }
