@@ -129,8 +129,8 @@ public enum HealthAppDataType: String, CaseIterable {
             healthApp.tables.textFields["BPM"].tap()
             healthApp.tables.textFields["BPM"].typeText("80")
         case .electrocardiograms:
-            XCTAssert(healthApp.tables.staticTexts["High Heart Rate"].waitForExistence(timeout: 2))
-            healthApp.tables.staticTexts["High Heart Rate"].tap()
+            XCTAssert(healthApp.tables.staticTexts["High Heart Rate"].firstMatch.waitForExistence(timeout: 2))
+            healthApp.tables.staticTexts["High Heart Rate"].firstMatch.tap()
         case .steps:
             XCTAssert(healthApp.tables.textFields["Steps"].waitForExistence(timeout: 2))
             healthApp.tables.textFields["Steps"].tap()
