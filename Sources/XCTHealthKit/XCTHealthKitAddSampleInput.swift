@@ -65,7 +65,7 @@ extension NewHealthSampleInput.EnterSampleValueHandler {
     }
     
     /// Creates a new sample value input handler that uses a custom, caller-provided closure to insert the sample's value into the Health app.
-    public static func custom(_ imp: @escaping Fn) -> Self {
+    public static func custom(_ imp: @escaping Imp) -> Self {
         Self(imp: imp)
     }
 }
