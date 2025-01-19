@@ -20,11 +20,12 @@ class TestAppUITests: XCTestCase {
         try app.handleHealthKitAuthorization()
     }
     
+    @MainActor
     func testXCTHealthKitExitAppAndOpenHealth() throws {
         try exitAppAndOpenHealth(.electrocardiograms)
         try exitAppAndOpenHealth(.steps)
         
-        let healthApp = XCUIApplication(bundleIdentifier: "com.apple.Health")
+        let healthApp = XCUIApplication.healthApp()
         healthApp.terminate()
         
         try exitAppAndOpenHealth(.pushes)
@@ -33,5 +34,28 @@ class TestAppUITests: XCTestCase {
         healthApp.terminate()
         
         try exitAppAndOpenHealth(.activeEnergy)
+    }
+    
+    
+    @MainActor
+    func testSampleEntry() throws {
+        try launchHealthAppAndAddSomeSamples([
+            NewHealthSampleInput(
+                sampleType: .steps,
+                enterSampleValueHandler: .enterSimpleNumericValue(52)
+            )
+        ])
+    }
+    
+    
+    @MainActor
+    func testSampleEntryWithDateAndTime() throws {
+        try launchHealthAppAndAddSomeSamples([
+            NewHealthSampleInput(
+                sampleType: .steps,
+                date: DateComponents(year: 2025, month: 01, day: 19, hour: 14, minute: 42),
+                enterSampleValueHandler: .enterSimpleNumericValue(52)
+            )
+        ])
     }
 }
