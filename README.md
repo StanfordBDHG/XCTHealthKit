@@ -29,19 +29,35 @@ The framework has the following functionalities:
 
 ### Add Mock Data Using the Apple Health App
 
-Use the `XCTestCase`'s `exitAppAndOpenHealth(_: HealthAppDataType) throws` function passing in an `HealthAppDataType` instance to add mock data using the Apple Health app:
+Use the `XCTestCase.launchAndAddSample(healthApp:_:) throws` function passing in an `NewHealthSampleInput` instance to add mock data using the Apple Health app:
 ```swift
 import XCTest
 import XCTHealthKit
 
+class HealthKitUITests: XCTestCase {
+    func testAddMockData() throws {
+        let healthApp = XCUIApplication.healthApp()
+        try launchAndAddSample(healthApp: healthApp, .steps(value: 71))
+        try launchAndAddSample(healthApp: healthApp, .electrocardiogram())
+    }
+}
+```
+
+Alternatively, the `XCTestCase.launchAndAddSamples(healthApp:_:) throws` function can be used to add multiple samples in a single call:
+```swift
+import XCTest
+import XCTHealthKit
 
 class HealthKitUITests: XCTestCase {
-    func testAddMockDataUsingTheAppleHealthApp() throws {
-        try exitAppAndOpenHealth(.electrocardiograms)
-        try exitAppAndOpenHealth(.steps)
-        try exitAppAndOpenHealth(.pushes)
-        try exitAppAndOpenHealth(.restingHeartRate)
-        try exitAppAndOpenHealth(.activeEnergy)
+    func testAddMockData() throws {
+        let healthApp = XCUIApplication.healthApp()
+        try launchAndAddSamples(healthApp: healthApp, [
+            .activeEnergy(),
+            .electrocardiogram(),
+            .pushes(value: 117),
+            .restingHeartRate(value: 91),
+            .steps()
+        ])
     }
 }
 ```
