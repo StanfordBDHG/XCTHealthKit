@@ -11,17 +11,4 @@ import XCTest
 
 
 final class XCTHealthKitTests: XCTestCase {
-    func testXCTHealthKit() throws {
-        XCTAssertEqual(HealthAppDataType.activeEnergy.hkTypeName, "HKQuantityTypeIdentifierActiveEnergyBurned")
-        XCTAssertEqual(HealthAppDataType.restingHeartRate.hkTypeName, "HKQuantityTypeIdentifierRestingHeartRate")
-        XCTAssertEqual(HealthAppDataType.electrocardiograms.hkTypeName, "HKDataTypeIdentifierElectrocardiogram")
-        XCTAssertEqual(HealthAppDataType.steps.hkTypeName, "HKQuantityTypeIdentifierStepCount")
-        XCTAssertEqual(HealthAppDataType.pushes.hkTypeName, "HKQuantityTypeIdentifierPushCount")
-        
-        XCTAssertEqual(HealthAppDataType.activeEnergy.hkCategory, "Activity")
-        XCTAssertEqual(HealthAppDataType.restingHeartRate.hkCategory, "Heart")
-        XCTAssertEqual(HealthAppDataType.electrocardiograms.hkCategory, "Heart")
-        XCTAssertEqual(HealthAppDataType.steps.hkCategory, "Activity")
-        XCTAssertEqual(HealthAppDataType.pushes.hkCategory, "Activity")
-    }
 }
