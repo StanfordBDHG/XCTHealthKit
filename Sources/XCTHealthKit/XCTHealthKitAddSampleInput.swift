@@ -74,6 +74,7 @@ extension NewHealthSampleInput.EnterSampleValueHandler {
 // MARK: Some Presets
 
 extension NewHealthSampleInput {
+    /// Creates a new Active Energy sample input, with the specified values
     public static func activeEnergy(value: Double = 52, date: DateComponents? = nil) -> Self {
         .init(sampleType: .activeEnergy, date: date, enterSampleValueHandler: .enterSimpleNumericValue(
             value,
@@ -81,10 +82,12 @@ extension NewHealthSampleInput {
         ))
     }
     
+    /// Creates a new Resting Heart Rate sample input, with the specified values
     public static func restingHeartRate(value: Double = 87, date: DateComponents? = nil) -> Self {
         .init(sampleType: .restingHeartRate, date: date, enterSampleValueHandler: .enterSimpleNumericValue(value))
     }
     
+    /// Creates a new Electrocardiogram sample input, with the specified values
     public static func electrocardiogram(date: DateComponents? = nil) -> Self {
         .init(sampleType: .electrocardiograms, date: date, enterSampleValueHandler: .custom { _, app in
             XCTAssert(app.tables.staticTexts["High Heart Rate"].firstMatch.waitForExistence(timeout: 2))
@@ -92,10 +95,12 @@ extension NewHealthSampleInput {
         })
     }
     
+    /// Creates a new Steps sample input, with the specified values
     public static func steps(value: Double = 75, date: DateComponents? = nil) -> Self {
         .init(sampleType: .steps, date: date, enterSampleValueHandler: .enterSimpleNumericValue(value))
     }
     
+    /// Creates a new Pushes sample input, with the specified values
     public static func pushes(value: Double = 85, date: DateComponents? = nil) -> Self {
         .init(sampleType: .pushes, date: date, enterSampleValueHandler: .enterSimpleNumericValue(value))
     }
@@ -186,12 +191,9 @@ extension XCUIApplication {
             }
         }
         if let day = components.day {
-            //let button = app.buttons.matching(NSPredicate(format: "label CONTAINS[cd] %@", ", \(day). ")).firstMatch
             let button = app.tables["UIA.Health.AddData.View"].cells["UIA.Health.AddData.DateCell"].staticTexts[String(day)]
             if !button.waitForExistence(timeout: 1) {
                 XCTFail("Unable to find button to select day.")
-                print(app.debugDescription)
-                fatalError()
             }
             button.tap()
         }
