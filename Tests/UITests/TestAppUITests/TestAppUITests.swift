@@ -21,41 +21,34 @@ class TestAppUITests: XCTestCase {
     }
     
     @MainActor
-    func testXCTHealthKitExitAppAndOpenHealth() throws {
-        try exitAppAndOpenHealth(.electrocardiograms)
-        try exitAppAndOpenHealth(.steps)
-        
+    func testXCTHealthKitAddSamples1() throws {
         let healthApp = XCUIApplication.healthApp()
+        try launchAndAddSample(healthApp: healthApp, .electrocardiogram())
+        try launchAndAddSample(healthApp: healthApp, .steps())
         healthApp.terminate()
-        
-        try exitAppAndOpenHealth(.pushes)
-        try exitAppAndOpenHealth(.restingHeartRate)
-        
+        try launchAndAddSample(healthApp: healthApp, .pushes())
+        try launchAndAddSample(healthApp: healthApp, .restingHeartRate())
         healthApp.terminate()
-        
-        try exitAppAndOpenHealth(.activeEnergy)
+        try launchAndAddSample(healthApp: healthApp, .activeEnergy())
     }
     
     
     @MainActor
-    func testSampleEntry() throws {
-        try launchHealthAppAndAddSomeSamples([
-            NewHealthSampleInput(
-                sampleType: .steps,
-                enterSampleValueHandler: .enterSimpleNumericValue(52)
-            )
-        ])
+    func testXCTHealthKitAddSamples2() throws {
+        let healthApp = XCUIApplication.healthApp()
+        try launchAndAddSamples(healthApp: healthApp, [.electrocardiogram(), .steps()])
+        healthApp.terminate()
+        try launchAndAddSamples(healthApp: healthApp, [.pushes(), .restingHeartRate()])
+        healthApp.terminate()
+        try launchAndAddSample(healthApp: healthApp, .activeEnergy())
     }
     
     
     @MainActor
     func testSampleEntryWithDateAndTime() throws {
-        try launchHealthAppAndAddSomeSamples([
-            NewHealthSampleInput(
-                sampleType: .steps,
-                date: DateComponents(year: 2025, month: 01, day: 19, hour: 14, minute: 42),
-                enterSampleValueHandler: .enterSimpleNumericValue(52)
-            )
-        ])
+        try launchAndAddSample(healthApp: .healthApp(), .steps(
+            value: 52,
+            date: DateComponents(year: 2025, month: 01, day: 19, hour: 14, minute: 42)
+        ))
     }
 }

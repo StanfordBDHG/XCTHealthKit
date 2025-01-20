@@ -11,10 +11,17 @@ import XCTest
 
 
 extension XCTestCase {
+    /// Launches the Health app and adds the specified sample to the database.
+    @MainActor
+    public func launchAndAddSample(healthApp: XCUIApplication, _ sample: NewHealthSampleInput) throws {
+        try launchAndAddSamples(healthApp: healthApp, CollectionOfOne(sample))
+    }
+    
+    
     /// Launches the Health app and adds the specified samples to the database.
     @MainActor
-    public func launchHealthAppAndAddSomeSamples(_ samples: [NewHealthSampleInput]) throws {
-        let healthApp = XCUIApplication.healthApp()
+    public func launchAndAddSamples(healthApp: XCUIApplication, _ samples: some Collection<NewHealthSampleInput>) throws {
+        try healthApp.assertIsHealthApp()
         // Note that we intentionally use launch here, rather than activate.
         // This will ensure that we have a fresh instance of the app, and we won't have to deal with any sheets
         // or other modals potentially being presented.
@@ -24,7 +31,7 @@ extension XCTestCase {
         
         // Handle onboarding, if necessary
         if healthApp.staticTexts["Welcome to Health"].waitForExistence(timeout: 3) {
-            handleOnboarding()
+            handleOnboarding(healthApp)
         }
         
         let browseTabBarButton = healthApp.tabBars["Tab Bar"].buttons["Browse"]
@@ -50,8 +57,8 @@ extension XCTestCase {
     }
     
     
-    private func handleOnboarding(alreadyRecursive: Bool = false) {
-        addUIInterruptionMonitor(withDescription: "System Dialog") { alert in
+    private func handleOnboarding(_ healthApp: XCUIApplication, alreadyRecursive: Bool = false) {
+        self.addUIInterruptionMonitor(withDescription: "System Dialog") { alert in
             guard alert.buttons["Allow"].exists else {
                 XCTFail("Failed not dismiss alert: \(alert.staticTexts.allElementsBoundByIndex)")
                 return false
@@ -60,8 +67,6 @@ extension XCTestCase {
             alert.buttons["Allow"].tap()
             return true
         }
-        
-        let healthApp = XCUIApplication(bundleIdentifier: "com.apple.Health")
         
         if healthApp.staticTexts["Welcome to Health"].waitForExistence(timeout: 5) {
             XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 5))
@@ -95,7 +100,7 @@ extension XCTestCase {
                     
                     healthApp.terminate()
                     healthApp.activate()
-                    handleOnboarding(alreadyRecursive: true)
+                    handleOnboarding(healthApp, alreadyRecursive: true)
                     return
                 }
             }

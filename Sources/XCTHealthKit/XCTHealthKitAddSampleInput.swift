@@ -26,14 +26,14 @@ public struct NewHealthSampleInput {
     /// The handler to which the actual entering of the sample value will be delegated.
     public let enterSampleValueHandler: EnterSampleValueHandler
     
-    /// - Warning: The `date` parameter is not guaranteed to actually always get properly applied when creating a sample.
+    /// Creates a new health sample input, with the specified parameters
     public init(
         sampleType: HealthAppSampleType,
-        date: DateComponents? = nil, // swiftlint:disable:this function_default_parameter_at_end
+        date: DateComponents?,
         enterSampleValueHandler: EnterSampleValueHandler
     ) {
         self.sampleType = sampleType
-        self.date = date // nil // currently disabled, until we can figure out why the datePickers in the health app's add data sheet are so cursed.
+        self.date = date
         self.enterSampleValueHandler = enterSampleValueHandler
     }
 }
@@ -71,6 +71,40 @@ extension NewHealthSampleInput.EnterSampleValueHandler {
 }
 
 
+// MARK: Some Presets
+
+extension NewHealthSampleInput {
+    public static func activeEnergy(value: Double = 52, date: DateComponents? = nil) -> Self {
+        .init(sampleType: .activeEnergy, date: date, enterSampleValueHandler: .enterSimpleNumericValue(
+            value,
+            inTextField: NSPredicate(format: "label LIKE[cd] %@ OR label LIKE[cd] %@", "cal", "kcal")
+        ))
+    }
+    
+    public static func restingHeartRate(value: Double = 87, date: DateComponents? = nil) -> Self {
+        .init(sampleType: .restingHeartRate, date: date, enterSampleValueHandler: .enterSimpleNumericValue(value))
+    }
+    
+    public static func electrocardiogram(date: DateComponents? = nil) -> Self {
+        .init(sampleType: .electrocardiograms, date: date, enterSampleValueHandler: .custom { _, app in
+            XCTAssert(app.tables.staticTexts["High Heart Rate"].firstMatch.waitForExistence(timeout: 2))
+            app.tables.staticTexts["High Heart Rate"].firstMatch.tap()
+        })
+    }
+    
+    public static func steps(value: Double = 75, date: DateComponents? = nil) -> Self {
+        .init(sampleType: .steps, date: date, enterSampleValueHandler: .enterSimpleNumericValue(value))
+    }
+    
+    public static func pushes(value: Double = 85, date: DateComponents? = nil) -> Self {
+        .init(sampleType: .pushes, date: date, enterSampleValueHandler: .enterSimpleNumericValue(value))
+    }
+}
+
+
+// MARK: Data Entry
+
+
 extension NewHealthSampleInput {
     /// Adds the sample to the health app.
     /// - Important: This function assumes that the Health app is already navigated to the sample type's page.
@@ -86,8 +120,8 @@ extension NewHealthSampleInput {
         addDataButton.tap()
         
         if let date {
-            healthApp.staticTexts["Date"].waitForExistence(timeout: 1)
-            healthApp.enterDateComponentsInHealthAppNewSampleSheet(date, in: healthApp)
+            XCTAssert(healthApp.staticTexts["Date"].waitForExistence(timeout: 1))
+            try healthApp.enterDateComponentsInHealthAppNewSampleSheet(date, in: healthApp)
         }
         
         try enterSampleValueHandler.imp(self, healthApp)
@@ -100,9 +134,9 @@ extension NewHealthSampleInput {
 
 extension XCUIApplication {
     /// Enters date components for date and time into the "Add Sample" sheet when manually adding a sample in the Health app
-    func enterDateComponentsInHealthAppNewSampleSheet(_ components: DateComponents, in app: XCUIApplication) {
+    func enterDateComponentsInHealthAppNewSampleSheet(_ components: DateComponents, in app: XCUIApplication) throws {
         enterDateInHealthAppNewSampleSheet(components, in: app)
-        enterTimeInHealthAppNewSampleSheet(components, in: app)
+        try enterTimeInHealthAppNewSampleSheet(components, in: app)
     }
     
     
@@ -152,9 +186,12 @@ extension XCUIApplication {
             }
         }
         if let day = components.day {
-            let button = app.buttons.matching(NSPredicate(format: "label CONTAINS[cd] %@", ", \(day). ")).firstMatch
+            //let button = app.buttons.matching(NSPredicate(format: "label CONTAINS[cd] %@", ", \(day). ")).firstMatch
+            let button = app.tables["UIA.Health.AddData.View"].cells["UIA.Health.AddData.DateCell"].staticTexts[String(day)]
             if !button.waitForExistence(timeout: 1) {
                 XCTFail("Unable to find button to select day.")
+                print(app.debugDescription)
+                fatalError()
             }
             button.tap()
         }
@@ -162,13 +199,13 @@ extension XCUIApplication {
     }
     
     
-    private func enterTimeInHealthAppNewSampleSheet(_ components: DateComponents, in app: XCUIApplication) {
+    private func enterTimeInHealthAppNewSampleSheet(_ components: DateComponents, in app: XCUIApplication) throws {
         guard components.hour != nil || components.minute != nil else {
             // there is nothing to be done
             return
         }
         self.tables.staticTexts["Time"].tap() // present the time picker
-        app.pickerWheels.firstMatch.waitForExistence(timeout: 1)
+        XCTAssert(app.pickerWheels.firstMatch.waitForExistence(timeout: 1))
         let pickerWheels = app.pickers.firstMatch.pickerWheels.allElementsBoundByIndex
         if let hour = components.hour {
             if pickerWheels.count == 2 {
@@ -178,7 +215,8 @@ extension XCUIApplication {
                 // 12 hour clock
                 XCTAssertEqual(pickerWheels.count, 3)
                 pickerWheels[0].adjust(toPickerWheelValue: String(hour > 12 ? hour - 12 : hour))
-                pickerWheels[2].adjust(toPickerWheelValue: hour > 12 ? "PM" : "AM")
+                let shouldLowercase = try XCTUnwrap((pickerWheels[2].value as? String)?.first).isLowercase
+                pickerWheels[2].adjust(toPickerWheelValue: (hour > 12 ? "PM" : "AM").lowercased(shouldLowercase))
             }
         }
         if let minute = components.minute {
@@ -220,5 +258,12 @@ extension DateFormatter {
     convenience init(format: String) {
         self.init()
         self.dateFormat = format
+    }
+}
+
+
+extension String {
+    func lowercased(_ isLower: Bool) -> String {
+        isLower ? self.lowercased() : self
     }
 }
