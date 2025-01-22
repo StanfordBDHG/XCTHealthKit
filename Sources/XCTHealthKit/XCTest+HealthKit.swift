@@ -20,10 +20,12 @@ struct XCTHealthKitError: Error {
 
 extension XCUIApplication {
     /// The Apple Health app
-    public static func healthApp(locale: Locale = .current) -> XCUIApplication {
+    public static func healthApp(locale: Locale? = nil) -> XCUIApplication {
         let app = XCUIApplication(bundleIdentifier: "com.apple.Health")
-        app.launchArguments.append("-AppleLocale")
-        app.launchArguments.append(locale.identifier)
+        if let locale {
+            app.launchArguments.append("-AppleLocale")
+            app.launchArguments.append(locale.identifier)
+        }
         return app
     }
 }
