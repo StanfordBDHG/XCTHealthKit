@@ -36,7 +36,7 @@ import XCTHealthKit
 
 class HealthKitUITests: XCTestCase {
     func testAddMockData() throws {
-        let healthApp = XCUIApplication.healthApp()
+        let healthApp = XCUIApplication.healthApp
         try launchAndAddSample(healthApp: healthApp, .steps(value: 71))
         try launchAndAddSample(healthApp: healthApp, .electrocardiogram())
     }
@@ -50,7 +50,7 @@ import XCTHealthKit
 
 class HealthKitUITests: XCTestCase {
     func testAddMockData() throws {
-        let healthApp = XCUIApplication.healthApp()
+        let healthApp = XCUIApplication.healthApp
         try launchAndAddSamples(healthApp: healthApp, [
             .activeEnergy(),
             .electrocardiogram(),
