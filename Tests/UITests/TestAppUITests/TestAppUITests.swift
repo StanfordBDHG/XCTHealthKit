@@ -22,7 +22,7 @@ class TestAppUITests: XCTestCase {
     
     @MainActor
     func testXCTHealthKitAddSamples1() throws {
-        let healthApp = XCUIApplication.healthApp()
+        let healthApp = XCUIApplication.healthApp
         try launchAndAddSample(healthApp: healthApp, .electrocardiogram())
         try launchAndAddSample(healthApp: healthApp, .steps())
         healthApp.terminate()
@@ -35,7 +35,7 @@ class TestAppUITests: XCTestCase {
     
     @MainActor
     func testXCTHealthKitAddSamples2() throws {
-        let healthApp = XCUIApplication.healthApp()
+        let healthApp = XCUIApplication.healthApp
         try launchAndAddSamples(healthApp: healthApp, [.electrocardiogram(), .steps()])
         healthApp.terminate()
         try launchAndAddSamples(healthApp: healthApp, [.pushes(), .restingHeartRate()])
@@ -46,7 +46,7 @@ class TestAppUITests: XCTestCase {
     
     @MainActor
     func testSampleEntryWithDateAndTime() throws {
-        try launchAndAddSample(healthApp: .healthApp(), .steps(
+        try launchAndAddSample(healthApp: .healthApp, .steps(
             value: 52,
             date: DateComponents(year: 2025, month: 01, day: 19, hour: 14, minute: 42)
         ))

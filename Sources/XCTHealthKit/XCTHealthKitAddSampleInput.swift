@@ -88,8 +88,8 @@ extension NewHealthSampleInput {
     }
     
     /// Creates a new Electrocardiogram sample input, with the specified values
-    public static func electrocardiogram(date: DateComponents? = nil) -> Self {
-        .init(sampleType: .electrocardiograms, date: date, enterSampleValueHandler: .custom { _, app in
+    public static func electrocardiogram() -> Self {
+        .init(sampleType: .electrocardiograms, date: nil, enterSampleValueHandler: .custom { _, app in
             XCTAssert(app.tables.staticTexts["High Heart Rate"].firstMatch.waitForExistence(timeout: 2))
             app.tables.staticTexts["High Heart Rate"].firstMatch.tap()
         })
