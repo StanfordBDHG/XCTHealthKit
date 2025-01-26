@@ -43,7 +43,8 @@ extension NewHealthSampleInput.EnterSampleValueHandler {
     /// Creates a new sample value input handler that inserts a numeric value into a text field.
     /// - parameter textFieldPredicate: optional predicate allowing the caller to specify which exact text field the value should be inserted into
     public static func enterSimpleNumericValue(_ value: Double, inTextField textFieldPredicate: NSPredicate? = nil) -> Self {
-        Self { _, healthApp in
+        nonisolated(unsafe) let textFieldPredicate = textFieldPredicate
+        return Self { _, healthApp in
             let dataEntryTable = healthApp.tables["UIA.Health.AddData.View"]
             let textField: XCUIElement
             if let textFieldPredicate {

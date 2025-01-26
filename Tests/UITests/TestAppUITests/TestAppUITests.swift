@@ -17,6 +17,7 @@ class TestAppUITests: XCTestCase {
         installHealthAppNotificationsAlertMonitor()
     }
     
+    @MainActor
     func testXCTHealthKitAsk() throws {
         let app = XCUIApplication()
         app.deleteAndLaunch(withSpringboardAppName: "TestApp")

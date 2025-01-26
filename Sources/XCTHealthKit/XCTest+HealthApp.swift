@@ -77,16 +77,18 @@ extension XCTestCase {
     @discardableResult
     public func installHealthAppNotificationsAlertMonitor() -> any NSObjectProtocol {
         self.addUIInterruptionMonitor(withDescription: "System Dialog") { alert in
-            guard alert.title.matches(/.Health.Would Like to Send You Notifications/) else {
-                // Not the Health app's Notification request alert.
-                return false
+            MainActor.assumeIsolated {
+                guard alert.title.matches(/.Health.Would Like to Send You Notifications/) else {
+                    // Not the Health app's Notification request alert.
+                    return false
+                }
+                guard alert.buttons["Allow"].exists else {
+                    XCTFail("Failed not dismiss alert: \(alert.staticTexts.allElementsBoundByIndex)")
+                    return false
+                }
+                alert.buttons["Allow"].tap()
+                return true
             }
-            guard alert.buttons["Allow"].exists else {
-                XCTFail("Failed not dismiss alert: \(alert.staticTexts.allElementsBoundByIndex)")
-                return false
-            }
-            alert.buttons["Allow"].tap()
-            return true
         }
     }
 }

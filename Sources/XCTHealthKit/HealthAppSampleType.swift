@@ -12,7 +12,7 @@ import XCTest
 
 
 /// A Sample type within the Health app.
-public struct HealthAppSampleType: Hashable {
+public struct HealthAppSampleType: Hashable, Sendable {
     public let category: HealthAppCategory
     public let sampleType: HKSampleType
     public let healthAppDisplayTitle: String
@@ -71,6 +71,7 @@ extension HealthAppSampleType {
 
 extension HealthAppSampleType {
     /// Navigates the Health app to the sample type's page.
+    @MainActor
     public func navigateToPage(in healthApp: XCUIApplication, assumeAlreadyInCategory: Bool) throws {
         if !assumeAlreadyInCategory {
             try category.navigateToPage(in: healthApp)
