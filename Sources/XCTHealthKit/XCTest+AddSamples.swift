@@ -30,9 +30,7 @@ extension XCTestCase {
         healthApp.launch()
         
         // Handle onboarding, if necessary
-        if healthApp.staticTexts["Welcome to Health"].waitForExistence(timeout: 3) {
-            handleOnboarding(healthApp)
-        }
+        handleHealthAppOnboardingIfNecessary(healthApp)
         
         let browseTabBarButton = healthApp.tabBars["Tab Bar"].buttons["Browse"]
         
@@ -57,7 +55,17 @@ extension XCTestCase {
     }
     
     
-    private func handleOnboarding(_ healthApp: XCUIApplication, alreadyRecursive: Bool = false) {
+    /// Walks through the Health App onboarding flow, if necessary.
+    @MainActor
+    public func handleHealthAppOnboardingIfNecessary(_ healthApp: XCUIApplication) {
+        if healthApp.staticTexts["Welcome to Health"].waitForExistence(timeout: 3) {
+            handleOnboarding(healthApp)
+        }
+    }
+    
+    
+    @MainActor
+    func handleOnboarding(_ healthApp: XCUIApplication, alreadyRecursive: Bool = false) {
         self.addUIInterruptionMonitor(withDescription: "System Dialog") { alert in
             guard alert.buttons["Allow"].exists else {
                 XCTFail("Failed not dismiss alert: \(alert.staticTexts.allElementsBoundByIndex)")
