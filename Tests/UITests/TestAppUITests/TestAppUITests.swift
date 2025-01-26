@@ -12,6 +12,11 @@ import XCTHealthKit
 
 
 class TestAppUITests: XCTestCase {
+    override func setUp() {
+        super.setUp()
+        installHealthAppNotificationsAlertMonitor()
+    }
+    
     func testXCTHealthKitAsk() throws {
         let app = XCUIApplication()
         app.deleteAndLaunch(withSpringboardAppName: "TestApp")
