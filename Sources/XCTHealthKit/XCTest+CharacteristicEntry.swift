@@ -67,7 +67,9 @@ extension XCTestCase {
         
         XCTAssert(healthApp.buttons["Profile"].waitForExistence(timeout: 2))
         healthApp.buttons["Profile"].tryToTapReallySoftlyMaybeThisWillMakeItWork()
+        sleep(1) // wait a second to make sure the sheet has fully appeared
         healthApp.cells["Health Details"].tap()
+        sleep(1) // wait a second to make sure the "Health Details" view has been presented.
         healthApp.navigationBars["Health Details"].buttons["Edit"].tap()
         
         if let dateOfBirth = characteristics.dateOfBirth {
