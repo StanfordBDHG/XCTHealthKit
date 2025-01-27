@@ -77,12 +77,15 @@ extension XCTestCase {
             // This is far from perfect (we're looking at the locale of the test runner, rather than the simulator/device,
             // which could be completely different, but it's the best we've got.
             let pickerWheelsMapping: [Calendar.Component: Int]
+            let dayFormatString: String
             switch Locale.current.identifier {
             case "en_US":
                 pickerWheelsMapping = [.month: 0, .day: 1, .year: 2]
+                dayFormatString = "%lld"
             default:
                 // If we're not running in the en_US locale, we just assume day/month/year
                 pickerWheelsMapping = [.day: 0, .month: 1, .year: 2]
+                dayFormatString = "%lld."
             }
             if let month = dateOfBirth.month {
                 picker.pickerWheels
@@ -92,7 +95,7 @@ extension XCTestCase {
             if let day = dateOfBirth.day {
                 picker.pickerWheels
                     .element(boundBy: try XCTUnwrap(pickerWheelsMapping[.day]))
-                    .adjust(toPickerWheelValue: String(day))
+                    .adjust(toPickerWheelValue: String(format: dayFormatString, day))
             }
             if let year = dateOfBirth.year {
                 picker.pickerWheels
