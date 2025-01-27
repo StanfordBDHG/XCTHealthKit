@@ -11,7 +11,7 @@ import HealthKit
 import XCTest
 
 
-/// Characteristics whoch should be entered into the health app.
+/// Characteristics which should be entered into the health app.
 public struct CharacteristicsDefinition {
     /// The blood type that should be entered, if any.
     ///
@@ -196,6 +196,8 @@ extension XCTestCase {
 
 
 extension XCUIElement {
+    // This is required to work around an apparent XCTest bug when trying to tap e.g. the Health App's Profile button.
+    // See also: https://stackoverflow.com/a/33534187
     func tryToTapReallySoftlyMaybeThisWillMakeItWork() {
         if isHittable {
             tap()
