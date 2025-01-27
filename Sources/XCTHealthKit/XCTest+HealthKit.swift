@@ -28,7 +28,7 @@ extension XCUIApplication {
 
 extension XCUIApplication {
     /// Returns the `XCUIApplication`'s bundle identifier.
-    public var bundleIdentifier: String {
+    nonisolated public var bundleIdentifier: String {
         let desc = self.description
         for prefix in ["Application '", "Target Application '"] {
             guard desc.hasPrefix(prefix) && desc.hasSuffix("'") else {
@@ -40,12 +40,12 @@ extension XCUIApplication {
     }
     
     /// Checks whether the app is in fact apple's Health app.
-    public var isHealthApp: Bool {
+    nonisolated public var isHealthApp: Bool {
         self.bundleIdentifier == "com.apple.Health"
     }
     
     /// Asserts that this is the Health app.
-    public func assertIsHealthApp() throws {
+    nonisolated public func assertIsHealthApp() throws {
         guard isHealthApp else {
             throw XCTHealthKitError("App \(bundleIdentifier) is not the Health app!")
         }

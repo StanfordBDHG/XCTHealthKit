@@ -1,4 +1,4 @@
-// swift-tools-version:5.7
+// swift-tools-version:6.0
 
 //
 // This source file is part of the XCTHealthKit open source project

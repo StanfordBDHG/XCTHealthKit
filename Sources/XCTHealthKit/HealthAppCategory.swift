@@ -11,7 +11,7 @@ import XCTest
 
 
 /// A category in the health app
-public enum HealthAppCategory: String, Hashable {
+public enum HealthAppCategory: String, Hashable, Sendable {
     case activity = "Activity"
     case bodyMeasurements = "Body Measurements"
     case cycleTracking = "Cycle Tracking"
@@ -35,6 +35,7 @@ public enum HealthAppCategory: String, Hashable {
     
     
     /// Navigates in the health app to the category, and selects it.
+    @MainActor
     public func navigateToPage(in healthApp: XCUIApplication) throws {
         try healthApp.assertIsHealthApp()
         

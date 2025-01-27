@@ -12,6 +12,12 @@ import XCTHealthKit
 
 
 class TestAppUITests: XCTestCase {
+    override func setUp() {
+        super.setUp()
+        installHealthAppNotificationsAlertMonitor()
+    }
+    
+    @MainActor
     func testXCTHealthKitAsk() throws {
         let app = XCUIApplication()
         app.deleteAndLaunch(withSpringboardAppName: "TestApp")
@@ -49,6 +55,18 @@ class TestAppUITests: XCTestCase {
         try launchAndAddSample(healthApp: .healthApp, .steps(
             value: 52,
             date: DateComponents(year: 2025, month: 01, day: 19, hour: 14, minute: 42)
+        ))
+    }
+    
+    
+    @MainActor
+    func testEnterCharacteristics() throws {
+        try launchHealthAppAndEnterCharacteristics(.init(
+            bloodType: .aNegative,
+            dateOfBirth: .init(year: 2022, month: 10, day: 11),
+            biologicalSex: .female,
+            skinType: .I,
+            wheelchairUse: .no
         ))
     }
 }
