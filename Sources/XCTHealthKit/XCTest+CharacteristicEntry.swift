@@ -207,7 +207,7 @@ extension XCUIElement {
         if isHittable {
             tap()
         } else {
-            coordinate(withNormalizedOffset: .zero).tap()
+            coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         }
     }
 }
