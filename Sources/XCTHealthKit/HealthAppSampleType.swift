@@ -76,27 +76,18 @@ extension HealthAppSampleType {
         if !assumeAlreadyInCategory {
             try category.navigateToPage(in: healthApp)
         }
-        
         let elementStaticTextPredicate = NSPredicate(format: "label CONTAINS[cd] %@", healthAppDisplayTitle)
         let elementStaticText = healthApp.staticTexts.element(matching: elementStaticTextPredicate).firstMatch
-        
-        guard elementStaticText.waitForExistence(timeout: 30), elementStaticText.isHittable else {
-            healthApp.swipeUp()
+        // depending on the device type and the sample type, we might need to scroll down all the way.
+        for _ in 0..<5 {
             if elementStaticText.waitForExistence(timeout: 10), elementStaticText.isHittable {
                 elementStaticText.tap()
                 return
+            } else {
+                healthApp.swipeUp()
             }
-            
-            healthApp.swipeUp()
-            if elementStaticText.waitForExistence(timeout: 10), elementStaticText.isHittable {
-                elementStaticText.tap()
-                return
-            }
-            
-            logger.notice("Failed to find element in category: \(healthApp.staticTexts.allElementsBoundByIndex)")
-            throw XCTestError(.failureWhileWaiting)
         }
-        
-        elementStaticText.tap()
+        logger.notice("Failed to find element in category: \(healthApp.staticTexts.allElementsBoundByIndex)")
+        throw XCTestError(.failureWhileWaiting)
     }
 }
