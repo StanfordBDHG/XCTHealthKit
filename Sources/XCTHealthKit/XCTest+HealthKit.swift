@@ -50,15 +50,23 @@ extension XCUIApplication {
             throw XCTHealthKitError("App \(bundleIdentifier) is not the Health app!")
         }
     }
-    
-    /// Detects and dismisses the HealthKit Authorization sheet. Fails if the sheet is not displayed.
-    public func handleHealthKitAuthorization() throws {
-        if !self.navigationBars["Health Access"].waitForExistence(timeout: 10) {
-            logger.notice("The HealthKit View did not load after 10 seconds ... give it a second try with a timeout of 20 seconds.")
-        }
-        if self.navigationBars["Health Access"].waitForExistence(timeout: 20) {
+}
+
+
+extension XCUIApplication {
+    /// Detects and dismisses the HealthKit Authorization sheet.
+    ///
+    /// - parameter timeout: how long the function should wait for the sheet to appear.
+    /// - parameter requireSheetToAppear: Whether the function should require the sheet to appear, i.e. whether it should fail if no Health permissions sheet is presented within the `timeout`.
+    public func handleHealthKitAuthorization(
+        timeout: TimeInterval = 5,
+        requireSheetToAppear: Bool = false
+    ) {
+        if self.navigationBars["Health Access"].waitForExistence(timeout: timeout) {
             self.tables.staticTexts["Turn On All"].tap()
             self.navigationBars["Health Access"].buttons["Allow"].tap()
+        } else if requireSheetToAppear {
+            XCTFail("No Health permissions sheet appeared within the timeout (\(timeout) sec)")
         }
     }
 }
