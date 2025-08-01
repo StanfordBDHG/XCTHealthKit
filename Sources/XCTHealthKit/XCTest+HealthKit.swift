@@ -59,7 +59,7 @@ extension XCUIApplication {
     /// - parameter timeout: how long the function should wait for the sheet to appear.
     /// - parameter requireSheetToAppear: Whether the function should require the sheet to appear, i.e. whether it should fail if no Health permissions sheet is presented within the `timeout`.
     public func handleHealthKitAuthorization(
-        timeout: TimeInterval = 15,
+        timeout: TimeInterval = 20,
         requireSheetToAppear: Bool = false
     ) {
         if self.navigationBars["Health Access"].waitForExistence(timeout: timeout) {
