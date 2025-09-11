@@ -14,6 +14,7 @@ import XCTHealthKit
 class TestAppUITests: XCTestCase {
     override func setUp() {
         super.setUp()
+        continueAfterFailure = false
         installHealthAppNotificationsAlertMonitor()
     }
     

@@ -32,18 +32,7 @@ extension XCTestCase {
         // Handle onboarding, if necessary
         handleHealthAppOnboardingIfNecessary(healthApp)
         
-        let browseTabBarButton = try { () -> XCUIElement in
-            for element in [healthApp.tabBars.buttons["Browse"], healthApp.tabBars.buttons["Search"]] {
-                guard element.waitForExistence(timeout: 2) && element.isHittable else {
-                    continue
-                }
-                return element
-            }
-            throw XCTHealthKitError("Unable to find 'Browse' tab bar item")
-        }()
-        
-        browseTabBarButton.tap() // select the tab
-        browseTabBarButton.tap() // go back to the tab's root VC, if necessary
+        try healthApp.goToBrowseTab()
         
         let samplesByCategory = Dictionary(grouping: samples, by: \.sampleType.category)
         for (category, samples) in samplesByCategory {
@@ -55,6 +44,27 @@ extension XCTestCase {
                     try sample.create(in: healthApp)
                 }
             }
+        }
+    }
+}
+
+
+extension XCUIApplication {
+    /// Attempts to navigate the Health app to the "search" (nee "Browse") tab.
+    ///
+    /// - Note: This function expects that no modals or sheets are currently presented.
+    @MainActor
+    public func goToBrowseTab() throws {
+        if self.navigationBars["Search"].exists {
+            return
+        }
+        let searchTabBarButton = self.tabBars.buttons["Search"]
+        guard searchTabBarButton.waitForExistence(timeout: 2) && searchTabBarButton.isHittable else {
+            throw XCTHealthKitError("Unable to find 'Browse' tab bar item")
+        }
+        searchTabBarButton.tap() // select the tab
+        if searchTabBarButton.isHittable {
+            searchTabBarButton.tap() // go back to the tab's root VC, if necessary
         }
     }
 }
