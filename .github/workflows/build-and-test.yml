@@ -1,7 +1,7 @@
 #
-# This source file is part of the XCTHealthKit open source project
+# This source file is part of the Stanford XCTHealthKit open source project
 #
-# SPDX-FileCopyrightText: 2022 Stanford University and the project authors (see CONTRIBUTORS.md)
+# SPDX-FileCopyrightText: 2025 Stanford University and the project authors (see CONTRIBUTORS.md)
 #
 # SPDX-License-Identifier: MIT
 #
@@ -15,27 +15,52 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: Build-and-Test-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  buildandtest_ios:
-    name: Build and Test Swift Package iOS
+  package_tests:
+    name: Build and Test Swift Package ${{ matrix.platform.name }} (${{ matrix.config }})
     uses: StanfordBDHG/.github/.github/workflows/xcodebuild-or-fastlane.yml@v2
+    strategy:
+      matrix:
+        config: [Debug]
+        platform:
+          - name: iOS
+            destination: 'platform=iOS Simulator,name=iPhone 17 Pro'
+      fail-fast: false
     with:
       runsonlabels: '["macOS", "self-hosted"]'
       scheme: XCTHealthKit
-      artifactname: XCTHealthKit.xcresult
-  buildandtestuitests_ios:
-    name: Build and Test UI Tests iOS
+      destination: ${{ matrix.platform.destination }}
+      buildConfig: ${{ matrix.config }}
+      resultBundle: ${{ format('XCTHealthKit-{0}-{1}.xcresult', matrix.platform.name, matrix.config) }}
+      artifactname: ${{ format('XCTHealthKit-{0}-{1}.xcresult', matrix.platform.name, matrix.config) }}
+  ui_tests:
+    name: Build and Test UI Tests ${{ matrix.platform.name }} (${{ matrix.config }})
     uses: StanfordBDHG/.github/.github/workflows/xcodebuild-or-fastlane.yml@v2
+    strategy:
+      matrix:
+        config: [Debug, Release]
+        platform:
+          - name: iOS 18
+            destination: 'platform=iOS Simulator,OS=18,name=iPhone 17 Pro'
+          - name: iOS 26
+            destination: 'platform=iOS Simulator,OS=26,name=iPhone 17 Pro'
+      fail-fast: false
     with:
       runsonlabels: '["macOS", "self-hosted"]'
-      path: Tests/UITests
+      path: 'Tests/UITests'
       scheme: TestApp
-      artifactname: TestApp.xcresult
+      destination: ${{ matrix.platform.destination }}
+      resultBundle: ${{ format('TestApp-{0}-{1}.xcresult', matrix.platform.name, matrix.config) }}
+      artifactname: ${{ format('TestApp-{0}-{1}.xcresult', matrix.platform.name, matrix.config) }}
   uploadcoveragereport:
     name: Upload Coverage Report
-    needs: [buildandtest_ios, buildandtestuitests_ios]
+    needs: [package_tests, ui_tests]
     uses: StanfordBDHG/.github/.github/workflows/create-and-upload-coverage-report.yml@v2
     with:
-      coveragereports: TestApp.xcresult XCTHealthKit.xcresult
+      coveragereports: XCTHealthKit-*.xcresult TestApp-*.xcresult
     secrets:
       token: ${{ secrets.CODECOV_TOKEN }}
