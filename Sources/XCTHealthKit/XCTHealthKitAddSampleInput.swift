@@ -117,7 +117,11 @@ extension NewHealthSampleInput {
     @MainActor
     func create(in healthApp: XCUIApplication) throws {
         let navBar = healthApp.navigationBars[sampleType.healthAppDisplayTitle]
-        let addDataButton = navBar.buttons["Add Data"]
+        let addDataButton = if XCTestCase.isIOS26OrGreater {
+            navBar.buttons["UIA.Health.BarItem.Add.Button"]
+        } else {
+            navBar.buttons["Add Data"]
+        }
         guard navBar.exists,
               navBar.buttons[sampleType.category.healthAppDisplayTitle].exists,
               addDataButton.exists else {
@@ -133,7 +137,11 @@ extension NewHealthSampleInput {
         try enterSampleValueHandler.imp(self, healthApp)
         
         // Save the sample to the database.
-        healthApp.navigationBars.firstMatch.buttons["Add"].tap()
+        if XCTestCase.isIOS26OrGreater {
+            healthApp.navigationBars.firstMatch.buttons["UIA.Health.AddData.Add"].tap()
+        } else {
+            healthApp.navigationBars.firstMatch.buttons["Add"].tap()
+        }
     }
 }
 

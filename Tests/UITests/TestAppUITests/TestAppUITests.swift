@@ -14,16 +14,17 @@ import XCTHealthKit
 class TestAppUITests: XCTestCase {
     override func setUp() {
         super.setUp()
+        continueAfterFailure = false
         installHealthAppNotificationsAlertMonitor()
     }
     
     @MainActor
-    func testXCTHealthKitAsk() throws {
+    func testXCTHealthKitAsk() {
         let app = XCUIApplication()
         app.deleteAndLaunch(withSpringboardAppName: "TestApp")
         
         app.buttons["Request HealthKit Authorization"].tap()
-        try app.handleHealthKitAuthorization()
+        app.handleHealthKitAuthorization()
     }
     
     @MainActor
@@ -38,7 +39,6 @@ class TestAppUITests: XCTestCase {
         try launchAndAddSample(healthApp: healthApp, .activeEnergy())
     }
     
-    
     @MainActor
     func testXCTHealthKitAddSamples2() throws {
         let healthApp = XCUIApplication.healthApp
@@ -49,7 +49,6 @@ class TestAppUITests: XCTestCase {
         try launchAndAddSample(healthApp: healthApp, .activeEnergy())
     }
     
-    
     @MainActor
     func testSampleEntryWithDateAndTime() throws {
         try launchAndAddSample(healthApp: .healthApp, .steps(
@@ -57,7 +56,6 @@ class TestAppUITests: XCTestCase {
             date: DateComponents(year: 2025, month: 01, day: 19, hour: 14, minute: 42)
         ))
     }
-    
     
     @MainActor
     func testEnterCharacteristics() throws {

@@ -42,19 +42,11 @@ public enum HealthAppCategory: String, Hashable, Sendable {
         let categoryTitle = self.rawValue
         
         // Dismiss any sheets that may still be open
-        if healthApp.navigationBars["Browse"].buttons["Cancel"].exists {
-            healthApp.navigationBars["Browse"].buttons["Cancel"].tap()
+        if healthApp.navigationBars.buttons["Cancel"].exists {
+            healthApp.navigationBars.buttons["Cancel"].tap()
         }
         
-        let browseTabBarButton = healthApp.tabBars["Tab Bar"].buttons["Browse"]
-        
-        if !browseTabBarButton.waitForExistence(timeout: 2) && browseTabBarButton.isHittable {
-            XCTFail("Unable to find 'Browse' tab bar item")
-            return
-        }
-        
-        browseTabBarButton.tap() // tap once to select the tab (if necessary)
-        browseTabBarButton.tap() // tap again to pop all VC off the navigation stack (if necessary)
+        try healthApp.goToBrowseTab()
         
         // Find category:
         let categoryStaticTextPredicate = NSPredicate(format: "label CONTAINS[cd] %@", categoryTitle)
