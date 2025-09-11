@@ -64,7 +64,7 @@ extension XCUIApplication {
     ) {
         if self.navigationBars["Health Access"].waitForExistence(timeout: timeout) {
             self.tables.staticTexts["Turn On All"].tap()
-            self.navigationBars["Health Access"].buttons["Allow"].tap()
+            self.buttons["Allow"].tap()
         } else if requireSheetToAppear {
             XCTFail("No Health permissions sheet appeared within the timeout (\(timeout) sec)")
         }

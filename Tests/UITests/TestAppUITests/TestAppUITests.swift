@@ -18,12 +18,12 @@ class TestAppUITests: XCTestCase {
     }
     
     @MainActor
-    func testXCTHealthKitAsk() throws {
+    func testXCTHealthKitAsk() {
         let app = XCUIApplication()
         app.deleteAndLaunch(withSpringboardAppName: "TestApp")
         
         app.buttons["Request HealthKit Authorization"].tap()
-        try app.handleHealthKitAuthorization()
+        app.handleHealthKitAuthorization()
     }
     
     @MainActor

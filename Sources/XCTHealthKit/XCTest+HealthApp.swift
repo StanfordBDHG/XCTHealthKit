@@ -31,8 +31,8 @@ extension XCTestCase {
             XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 5))
             healthApp.staticTexts["Continue"].tap()
             
-            XCTAssertTrue(healthApp.tables.buttons["Next"].waitForExistence(timeout: 5))
-            healthApp.tables.buttons["Next"].tap()
+            XCTAssertTrue(healthApp.buttons["Next"].waitForExistence(timeout: 5))
+            healthApp.buttons["Next"].tap()
             
             // Sometimes the HealthApp fails to advance to the next step here.
             // Go back and try again.

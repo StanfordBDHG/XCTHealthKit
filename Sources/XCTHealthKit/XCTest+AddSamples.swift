@@ -32,11 +32,15 @@ extension XCTestCase {
         // Handle onboarding, if necessary
         handleHealthAppOnboardingIfNecessary(healthApp)
         
-        let browseTabBarButton = healthApp.tabBars["Tab Bar"].buttons["Browse"]
-        
-        if !browseTabBarButton.waitForExistence(timeout: 2) && browseTabBarButton.isHittable {
+        let browseTabBarButton = try { () -> XCUIElement in
+            for element in [healthApp.tabBars.buttons["Browse"], healthApp.tabBars.buttons["Search"]] {
+                guard element.waitForExistence(timeout: 2) && element.isHittable else {
+                    continue
+                }
+                return element
+            }
             throw XCTHealthKitError("Unable to find 'Browse' tab bar item")
-        }
+        }()
         
         browseTabBarButton.tap() // select the tab
         browseTabBarButton.tap() // go back to the tab's root VC, if necessary
