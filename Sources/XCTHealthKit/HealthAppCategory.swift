@@ -42,8 +42,8 @@ public enum HealthAppCategory: String, Hashable, Sendable {
         let categoryTitle = self.rawValue
         
         // Dismiss any sheets that may still be open
-        if healthApp.navigationBars["Search"].buttons["Cancel"].exists {
-            healthApp.navigationBars["Search"].buttons["Cancel"].tap()
+        if healthApp.navigationBars.buttons["Cancel"].exists {
+            healthApp.navigationBars.buttons["Cancel"].tap()
         }
         
         try healthApp.goToBrowseTab()
