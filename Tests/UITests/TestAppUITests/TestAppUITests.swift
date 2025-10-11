@@ -28,6 +28,18 @@ class TestAppUITests: XCTestCase {
     }
     
     @MainActor
+    func testXCTHealthRecordsAsk() throws {
+        let app = XCUIApplication()
+        app.deleteAndLaunch(withSpringboardAppName: "TestApp")
+        
+        let healthApp = XCUIApplication.healthApp
+        try configureHealthRecordAccount(healthApp: healthApp, account: .sampleA)
+        
+        app.buttons["Request HealthKit Health Records Authorization"].tap()
+        app.handleHealthRecordsAuthorization()
+    }
+    
+    @MainActor
     func testXCTHealthKitAddSamples1() throws {
         let healthApp = XCUIApplication.healthApp
         try launchAndAddSample(healthApp: healthApp, .electrocardiogram())
