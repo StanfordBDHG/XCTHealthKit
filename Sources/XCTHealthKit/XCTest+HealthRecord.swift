@@ -95,12 +95,36 @@ extension XCUIApplication {
     ///   a Health Records account, and that the simulator or device region is set to **United States**, **Canada**, or **United Kingdom**,
     ///   as Health Records are only available in those regions.
     public func handleHealthRecordsAuthorization(
+        healthApp: XCUIApplication,
+        account: HealthAppHealthRecordAccount = .sampleA,
         healthRecordTypes: [HealthRecordType] = HealthRecordType.allCases,
-        automaticallyShareUpdates: Bool = true
+        automaticallyShareUpdates: Bool = true,
+        timout: TimeInterval = 20,
     ) {
         XCTAssertTrue(navigationBars["HealthUI.ClinicalAuthorizationAccountsIntroView"].waitForExistence(timeout: 10))
         
-        for _ in 1...3 {
+        XCTAssertTrue(buttons["Next"].waitForExistence(timeout: 5))
+        buttons["Next"].tap()
+        
+        if !staticTexts[account.locationName].waitForExistence(timeout: 5) {
+            XCTAssertTrue(staticTexts["Add Account"].waitForExistence(timeout: 5))
+            staticTexts["Add Account"].tap()
+            
+            if healthApp.buttons["UIA.Health.SuggestedAction.SetUpClinicalRecords.PrimaryButton"].waitForExistence(timeout: 5) {
+                healthApp.buttons["UIA.Health.SuggestedAction.SetUpClinicalRecords.PrimaryButton"].tap()
+            }
+            
+            XCTAssertTrue(healthApp.staticTexts[account.institutionName].waitForExistence(timeout: 5))
+            healthApp.staticTexts[account.institutionName].tap()
+            
+            XCTAssertTrue(healthApp.staticTexts["Connect Account"].waitForExistence(timeout: 5))
+            healthApp.staticTexts["Connect Account"].tap()
+            
+            XCTAssertTrue(healthApp.staticTexts["Done"].waitForExistence(timeout: 5))
+            healthApp.staticTexts["Done"].tap()
+        }
+        
+        for _ in 0...1 {
             XCTAssertTrue(buttons["Next"].waitForExistence(timeout: 5))
             buttons["Next"].tap()
         }
@@ -123,51 +147,5 @@ extension XCUIApplication {
         
         XCTAssertTrue(buttons["Done"].waitForExistence(timeout: 5))
         buttons["Done"].tap()
-    }
-}
-
-extension XCTestCase {
-    /// Configures a Health Records account in the Health app for UI testing.
-    ///
-    /// If the specified account is already connected, the method detects this and exits early.
-    ///
-    /// - Parameters:
-    ///   - healthApp: The `XCUIApplication` instance representing the Health app.
-    ///   - account: The `HealthAppHealthRecordAccount` to connect.
-    ///
-    /// - Note:
-    ///   Before calling this method, ensure that the simulator or device region is set to **United States**, **Canada**, or **United Kingdom**,
-    ///   as Health Records are only available in those regions.
-    @MainActor
-    public func configureHealthRecordAccount(healthApp: XCUIApplication, account: HealthAppHealthRecordAccount) throws {
-        try healthApp.assertIsHealthApp()
-        // Note that we intentionally use launch here, rather than activate.
-        // This will ensure that we have a fresh instance of the app, and we won't have to deal with any sheets
-        // or other modals potentially being presented.
-        // There might still be some state restoration going on (eg: the Health app will sometimes navigate to the last-used
-        // page w/in one of the tabs), but that's easy to handle.
-        healthApp.launch()
-        
-        // Handle onboarding, if necessary
-        handleHealthAppOnboardingIfNecessary(healthApp)
-        
-        try healthApp.goToBrowseTab()
-        
-        for _ in 0...3 {
-            healthApp.swipeUp()
-        }
-        
-        if healthApp.staticTexts[account.locationName].waitForExistence(timeout: 5) {
-            return
-        }
-        
-        XCTAssertTrue(healthApp.staticTexts["Add Account"].waitForExistence(timeout: 5))
-        healthApp.staticTexts["Add Account"].tap()
-        XCTAssertTrue(healthApp.staticTexts[account.institutionName].waitForExistence(timeout: 5))
-        healthApp.staticTexts[account.institutionName].tap()
-        XCTAssertTrue(healthApp.staticTexts["Connect Account"].waitForExistence(timeout: 5))
-        healthApp.staticTexts["Connect Account"].tap()
-        XCTAssertTrue(healthApp.staticTexts["Done"].waitForExistence(timeout: 5))
-        healthApp.staticTexts["Done"].tap()
     }
 }
