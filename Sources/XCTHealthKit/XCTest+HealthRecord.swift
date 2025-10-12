@@ -80,7 +80,7 @@ public enum HealthRecordType: CaseIterable {
     }
 }
 
-extension XCUIApplication {
+extension XCTestCase {
     /// Handles and dismisses the Health Records authorization flow in the Health app during UI tests.
     ///
     /// This method navigates through the Health Records permission sheet, enables all provided
@@ -94,24 +94,34 @@ extension XCUIApplication {
     ///   Before calling this method, ensure that `configureHealthRecordAccount` has been run to add
     ///   a Health Records account, and that the simulator or device region is set to **United States**, **Canada**, or **United Kingdom**,
     ///   as Health Records are only available in those regions.
+    @MainActor
     public func handleHealthRecordsAuthorization(
+        testApp: XCUIApplication,
         healthApp: XCUIApplication,
         account: HealthAppHealthRecordAccount = .sampleA,
         healthRecordTypes: [HealthRecordType] = HealthRecordType.allCases,
         automaticallyShareUpdates: Bool = true,
         timout: TimeInterval = 20,
     ) {
-        XCTAssertTrue(navigationBars["HealthUI.ClinicalAuthorizationAccountsIntroView"].waitForExistence(timeout: 10))
+        XCTAssertTrue(testApp.navigationBars["HealthUI.ClinicalAuthorizationAccountsIntroView"].waitForExistence(timeout: 10))
         
-        XCTAssertTrue(buttons["Next"].waitForExistence(timeout: 5))
-        buttons["Next"].tap()
+        XCTAssertTrue(testApp.buttons["Next"].waitForExistence(timeout: 5))
+        testApp.buttons["Next"].tap()
         
-        if !staticTexts[account.locationName].waitForExistence(timeout: 5) {
-            XCTAssertTrue(staticTexts["Add Account"].waitForExistence(timeout: 5))
-            staticTexts["Add Account"].tap()
+        if !testApp.staticTexts[account.locationName].waitForExistence(timeout: 5) {
+            XCTAssertTrue(testApp.staticTexts["Add Account"].waitForExistence(timeout: 5))
+            testApp.staticTexts["Add Account"].tap()
+            
+            handleHealthAppOnboardingIfNecessary(healthApp)
             
             if healthApp.buttons["UIA.Health.SuggestedAction.SetUpClinicalRecords.PrimaryButton"].waitForExistence(timeout: 5) {
                 healthApp.buttons["UIA.Health.SuggestedAction.SetUpClinicalRecords.PrimaryButton"].tap()
+            }
+            
+            let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+            let allowButton = springboard.buttons["Allow Once"]
+            if allowButton.waitForExistence(timeout: 5) {
+                allowButton.tap()
             }
             
             XCTAssertTrue(healthApp.staticTexts[account.institutionName].waitForExistence(timeout: 5))
@@ -125,27 +135,27 @@ extension XCUIApplication {
         }
         
         for _ in 0...1 {
-            XCTAssertTrue(buttons["Next"].waitForExistence(timeout: 5))
-            buttons["Next"].tap()
+            XCTAssertTrue(testApp.buttons["Next"].waitForExistence(timeout: 5))
+            testApp.buttons["Next"].tap()
         }
         
         HealthRecordType.allCases.forEach {
-            if !switches[$0.description].waitForExistence(timeout: 5) {
-                swipeDown()
-                XCTAssertTrue(switches[$0.description].waitForExistence(timeout: 5))
+            if !testApp.switches[$0.description].waitForExistence(timeout: 5) {
+                testApp.swipeDown()
+                XCTAssertTrue(testApp.switches[$0.description].waitForExistence(timeout: 5))
             }
-            switches[$0.description].tap()
+            testApp.switches[$0.description].tap()
         }
         
-        XCTAssertTrue(buttons["Share"].waitForExistence(timeout: 5))
-        buttons["Share"].tap()
+        XCTAssertTrue(testApp.buttons["Share"].waitForExistence(timeout: 5))
+        testApp.buttons["Share"].tap()
         
         if automaticallyShareUpdates {
-            XCTAssertTrue(staticTexts["Automatically Share"].waitForExistence(timeout: 5))
-            staticTexts["Automatically Share"].tap()
+            XCTAssertTrue(testApp.staticTexts["Automatically Share"].waitForExistence(timeout: 5))
+            testApp.staticTexts["Automatically Share"].tap()
         }
         
-        XCTAssertTrue(buttons["Done"].waitForExistence(timeout: 5))
-        buttons["Done"].tap()
+        XCTAssertTrue(testApp.buttons["Done"].waitForExistence(timeout: 5))
+        testApp.buttons["Done"].tap()
     }
 }

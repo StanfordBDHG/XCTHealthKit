@@ -33,7 +33,7 @@ class TestAppUITests: XCTestCase {
         app.deleteAndLaunch(withSpringboardAppName: "TestApp")
         
         app.buttons["Request HealthKit Health Records Authorization"].tap()
-        app.handleHealthRecordsAuthorization(healthApp: .healthApp)
+        handleHealthRecordsAuthorization(testApp: app, healthApp: .healthApp)
     }
     
     @MainActor
