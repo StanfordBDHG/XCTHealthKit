@@ -33,34 +33,34 @@ class TestAppUITests: XCTestCase {
         app.deleteAndLaunch(withSpringboardAppName: "TestApp")
         
         app.buttons["Request HealthKit Health Records Authorization"].tap()
-        handleHealthRecordsAuthorization(testApp: app, healthApp: .healthApp)
+        handleHealthRecordsAuthorization()
     }
     
     @MainActor
     func testXCTHealthKitAddSamples1() throws {
         let healthApp = XCUIApplication.healthApp
-        try launchAndAddSample(healthApp: healthApp, .electrocardiogram())
-        try launchAndAddSample(healthApp: healthApp, .steps())
+        try launchAndAddSample(.electrocardiogram())
+        try launchAndAddSample(.steps())
         healthApp.terminate()
-        try launchAndAddSample(healthApp: healthApp, .pushes())
-        try launchAndAddSample(healthApp: healthApp, .restingHeartRate())
+        try launchAndAddSample(.pushes())
+        try launchAndAddSample(.restingHeartRate())
         healthApp.terminate()
-        try launchAndAddSample(healthApp: healthApp, .activeEnergy())
+        try launchAndAddSample(.activeEnergy())
     }
     
     @MainActor
     func testXCTHealthKitAddSamples2() throws {
         let healthApp = XCUIApplication.healthApp
-        try launchAndAddSamples(healthApp: healthApp, [.electrocardiogram(), .steps()])
+        try launchAndAddSamples([.electrocardiogram(), .steps()])
         healthApp.terminate()
-        try launchAndAddSamples(healthApp: healthApp, [.pushes(), .restingHeartRate()])
+        try launchAndAddSamples([.pushes(), .restingHeartRate()])
         healthApp.terminate()
-        try launchAndAddSample(healthApp: healthApp, .activeEnergy())
+        try launchAndAddSample(.activeEnergy())
     }
     
     @MainActor
     func testSampleEntryWithDateAndTime() throws {
-        try launchAndAddSample(healthApp: .healthApp, .steps(
+        try launchAndAddSample(.steps(
             value: 52,
             date: DateComponents(year: 2025, month: 01, day: 19, hour: 14, minute: 42)
         ))

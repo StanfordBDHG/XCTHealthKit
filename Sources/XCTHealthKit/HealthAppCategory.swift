@@ -36,7 +36,7 @@ public enum HealthAppCategory: String, Hashable, Sendable {
     
     /// Navigates in the health app to the category, and selects it.
     @MainActor
-    public func navigateToPage(in healthApp: XCUIApplication) throws {
+    public func navigateToPage(in healthApp: XCUIApplication = .healthApp) throws {
         try healthApp.assertIsHealthApp()
         
         let categoryTitle = self.rawValue

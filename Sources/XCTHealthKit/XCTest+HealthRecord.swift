@@ -87,30 +87,32 @@ extension XCTestCase {
     /// clinical record types for sharing, and completes the authorization process.
     ///
     /// - Parameters:
-    ///   - healthRecordTypes: The record types to enable for sharing. Defaults to all supported types.
-    ///   - automaticallyShareUpdates: Whether to enable automatic sharing when prompted. Defaults to `true`.
+    ///   - systemUnderTest: The app under test (`XCUIApplication`) that initiates the Health Records authorization.
+    ///                      Defaults to a new `XCUIApplication` instance.
+    ///   - healthApp: The `XCUIApplication` instance representing the Health app. Defaults to `.healthApp`.
+    ///   - account: The `HealthAppHealthRecordAccount` to use when authorizing access. Defaults to `.sampleA`.
+    ///   - healthRecordTypes: The clinical record types to enable for sharing. Defaults to all available types.
+    ///   - automaticallyShareUpdates: A Boolean value indicating whether to enable automatic sharing of updates
+    ///                                when prompted. Defaults to `true`.
     ///
     /// - Note:
-    ///   Before calling this method, ensure that `configureHealthRecordAccount` has been run to add
-    ///   a Health Records account, and that the simulator or device region is set to **United States**, **Canada**, or **United Kingdom**,
-    ///   as Health Records are only available in those regions.
+    ///   Before calling this method, ensure  that the simulator or device region is set to **United States**, **Canada**, or **United Kingdom**, as Health Records are only available in those regions.
     @MainActor
     public func handleHealthRecordsAuthorization(
-        testApp: XCUIApplication,
-        healthApp: XCUIApplication,
+        systemUnderTest: XCUIApplication = XCUIApplication(),
+        healthApp: XCUIApplication = .healthApp,
         account: HealthAppHealthRecordAccount = .sampleA,
         healthRecordTypes: [HealthRecordType] = HealthRecordType.allCases,
         automaticallyShareUpdates: Bool = true,
-        timout: TimeInterval = 20,
     ) {
-        XCTAssertTrue(testApp.navigationBars["HealthUI.ClinicalAuthorizationAccountsIntroView"].waitForExistence(timeout: 10))
+        XCTAssertTrue(systemUnderTest.navigationBars["HealthUI.ClinicalAuthorizationAccountsIntroView"].waitForExistence(timeout: 10))
         
-        XCTAssertTrue(testApp.buttons["Next"].waitForExistence(timeout: 5))
-        testApp.buttons["Next"].tap()
+        XCTAssertTrue(systemUnderTest.buttons["Next"].waitForExistence(timeout: 5))
+        systemUnderTest.buttons["Next"].tap()
         
-        if !testApp.staticTexts[account.locationName].waitForExistence(timeout: 5) {
-            XCTAssertTrue(testApp.staticTexts["Add Account"].waitForExistence(timeout: 5))
-            testApp.staticTexts["Add Account"].tap()
+        if !systemUnderTest.staticTexts[account.locationName].waitForExistence(timeout: 5) {
+            XCTAssertTrue(systemUnderTest.staticTexts["Add Account"].waitForExistence(timeout: 5))
+            systemUnderTest.staticTexts["Add Account"].tap()
             
             handleHealthAppOnboardingIfNecessary(healthApp)
             
@@ -135,27 +137,27 @@ extension XCTestCase {
         }
         
         for _ in 0...1 {
-            XCTAssertTrue(testApp.buttons["Next"].waitForExistence(timeout: 5))
-            testApp.buttons["Next"].tap()
+            XCTAssertTrue(systemUnderTest.buttons["Next"].waitForExistence(timeout: 5))
+            systemUnderTest.buttons["Next"].tap()
         }
         
         HealthRecordType.allCases.forEach {
-            if !testApp.switches[$0.description].waitForExistence(timeout: 5) {
-                testApp.swipeDown()
-                XCTAssertTrue(testApp.switches[$0.description].waitForExistence(timeout: 5))
+            if !systemUnderTest.switches[$0.description].waitForExistence(timeout: 5) {
+                systemUnderTest.swipeDown()
+                XCTAssertTrue(systemUnderTest.switches[$0.description].waitForExistence(timeout: 5))
             }
-            testApp.switches[$0.description].tap()
+            systemUnderTest.switches[$0.description].tap()
         }
         
-        XCTAssertTrue(testApp.buttons["Share"].waitForExistence(timeout: 5))
-        testApp.buttons["Share"].tap()
+        XCTAssertTrue(systemUnderTest.buttons["Share"].waitForExistence(timeout: 5))
+        systemUnderTest.buttons["Share"].tap()
         
         if automaticallyShareUpdates {
-            XCTAssertTrue(testApp.staticTexts["Automatically Share"].waitForExistence(timeout: 5))
-            testApp.staticTexts["Automatically Share"].tap()
+            XCTAssertTrue(systemUnderTest.staticTexts["Automatically Share"].waitForExistence(timeout: 5))
+            systemUnderTest.staticTexts["Automatically Share"].tap()
         }
         
-        XCTAssertTrue(testApp.buttons["Done"].waitForExistence(timeout: 5))
-        testApp.buttons["Done"].tap()
+        XCTAssertTrue(systemUnderTest.buttons["Done"].waitForExistence(timeout: 5))
+        systemUnderTest.buttons["Done"].tap()
     }
 }

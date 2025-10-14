@@ -9,19 +9,17 @@
 
 import XCTest
 
-
 extension XCTestCase {
     /// Walks through the Health App onboarding flow, if necessary.
     @MainActor
-    public func handleHealthAppOnboardingIfNecessary(_ healthApp: XCUIApplication) {
+    public func handleHealthAppOnboardingIfNecessary(_ healthApp: XCUIApplication = .healthApp) {
         if healthApp.staticTexts["Welcome to Health"].waitForExistence(timeout: 3) {
             handleOnboarding(healthApp)
         }
     }
     
-    
     @MainActor
-    func handleOnboarding(_ healthApp: XCUIApplication, alreadyRecursive: Bool = false) {
+    func handleOnboarding(_ healthApp: XCUIApplication = .healthApp, alreadyRecursive: Bool = false) {
         installHealthAppNotificationsAlertMonitor()
         
         if healthApp.staticTexts["Welcome to Health"].waitForExistence(timeout: 5) {

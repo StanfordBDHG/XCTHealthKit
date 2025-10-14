@@ -63,7 +63,7 @@ extension XCTestCase {
     ) throws {
         let healthApp = XCUIApplication.healthApp
         healthApp.launch()
-        handleHealthAppOnboardingIfNecessary(healthApp)
+        handleHealthAppOnboardingIfNecessary()
         
         XCTAssert(healthApp.buttons["Profile"].waitForExistence(timeout: 2))
         healthApp.buttons["Profile"].tryToTapReallySoftlyMaybeThisWillMakeItWork()
