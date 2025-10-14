@@ -13,14 +13,19 @@ import XCTest
 extension XCTestCase {
     /// Launches the Health app and adds the specified sample to the database.
     @MainActor
-    public func launchAndAddSample(healthApp: XCUIApplication, _ sample: NewHealthSampleInput) throws {
+    public func launchAndAddSample(
+        healthApp: XCUIApplication = .healthApp, // swiftlint:disable:this function_default_parameter_at_end
+        _ sample: NewHealthSampleInput
+    ) throws {
         try launchAndAddSamples(healthApp: healthApp, CollectionOfOne(sample))
     }
     
-    
     /// Launches the Health app and adds the specified samples to the database.
     @MainActor
-    public func launchAndAddSamples(healthApp: XCUIApplication, _ samples: some Collection<NewHealthSampleInput>) throws {
+    public func launchAndAddSamples(
+        healthApp: XCUIApplication = .healthApp, // swiftlint:disable:this function_default_parameter_at_end
+        _ samples: some Collection<NewHealthSampleInput>
+    ) throws {
         try healthApp.assertIsHealthApp()
         // Note that we intentionally use launch here, rather than activate.
         // This will ensure that we have a fresh instance of the app, and we won't have to deal with any sheets
