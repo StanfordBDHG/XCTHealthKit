@@ -68,7 +68,8 @@ extension XCUIApplication {
             let searchTabBarButton = self.tabBars.buttons["Search"]
             guard searchTabBarButton.waitForExistence(timeout: 2) && searchTabBarButton.isHittable else {
                 if dismissAccountSheetIfNecessary() {
-                    return try goToBrowseTab()
+                    try goToBrowseTab()
+                    return
                 } else {
                     throw XCTHealthKitError("Unable to find 'Search' tab bar item")
                 }
