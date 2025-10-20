@@ -61,12 +61,18 @@ extension XCUIApplication {
     @MainActor
     public func goToBrowseTab() throws {
         if XCTestCase.isIOS26OrGreater {
+            try assertIsHealthApp()
             if self.navigationBars["Search"].exists {
                 return
             }
             let searchTabBarButton = self.tabBars.buttons["Search"]
             guard searchTabBarButton.waitForExistence(timeout: 2) && searchTabBarButton.isHittable else {
-                throw XCTHealthKitError("Unable to find 'Browse' tab bar item")
+                if dismissAccountSheetIfNecessary() {
+                    try goToBrowseTab()
+                    return
+                } else {
+                    throw XCTHealthKitError("Unable to find 'Search' tab bar item")
+                }
             }
             searchTabBarButton.tap() // select the tab
             if searchTabBarButton.isHittable {
@@ -79,6 +85,19 @@ extension XCUIApplication {
             }
             browseTabBarButton.tap() // select the tab
             browseTabBarButton.tap() // go back to the tab's root VC, if necessary
+        }
+    }
+    
+    /// - returns: `true` if the account sheet was dismissed, otherwise false.
+    @MainActor
+    func dismissAccountSheetIfNecessary() -> Bool {
+        let doneButton = self.navigationBars["HealthExperienceUI.ProfileView"].buttons["Done"]
+        if doneButton.exists {
+            doneButton.tap()
+            XCTAssert(doneButton.waitForNonExistence(timeout: 2))
+            return true
+        } else {
+            return false
         }
     }
 }
