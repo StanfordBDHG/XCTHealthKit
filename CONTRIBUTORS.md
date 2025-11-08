@@ -15,3 +15,4 @@ XCTHealthKit contributors
 
 * [Paul Schmiedmayer](https://github.com/PSchmiedmayer)
 * [Lukas Kollmer](https://github.com/lukaskollmer)
+* [Philipp Nagy](https://github.com/phnagy)
