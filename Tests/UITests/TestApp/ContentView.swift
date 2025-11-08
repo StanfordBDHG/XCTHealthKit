@@ -12,9 +12,8 @@ import SwiftUI
 
 
 struct ContentView: View {
-    let healthStore = HKHealthStore()
+    private let healthStore = HKHealthStore()
     
-    @State private var isProcessing = false
     @State private var numHealthRecords = 0
     
     var body: some View {
