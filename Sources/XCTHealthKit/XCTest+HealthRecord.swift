@@ -94,30 +94,49 @@ extension XCTestCase {
     ///   - healthRecordTypes: The clinical record types to enable for sharing. Defaults to all available types.
     ///   - automaticallyShareUpdates: A Boolean value indicating whether to enable automatic sharing of updates
     ///                                when prompted. Defaults to `true`.
+    ///   - timeout: How long the function will wait for the initial sheet to appear.
+    ///   - requireSheetToAppear: Whether the function should require the sheet to appear, i.e. whether it should fail if no Health permissions sheet is presented within the `timeout`.
     ///
     /// - Note:
     ///   Before calling this method, ensure  that the simulator or device region is set to **United States**, **Canada**, or **United Kingdom**, as Health Records are only available in those regions.
     @MainActor
-    public func handleHealthRecordsAuthorization(
+    public func handleHealthRecordsAuthorization( // swiftlint:disable:this function_body_length
         systemUnderTest: XCUIApplication = XCUIApplication(),
         healthApp: XCUIApplication = .healthApp,
-        account: HealthAppHealthRecordAccount = .sampleA,
+        accounts: [HealthAppHealthRecordAccount] = HealthAppHealthRecordAccount.allCases,
         healthRecordTypes: [HealthRecordType] = HealthRecordType.allCases,
         automaticallyShareUpdates: Bool = true,
+        timeout: TimeInterval = 10,
+        requireSheetToAppear: Bool = false
     ) {
-        XCTAssertTrue(systemUnderTest.navigationBars["HealthUI.ClinicalAuthorizationAccountsIntroView"].waitForExistence(timeout: 10))
+        guard systemUnderTest.navigationBars["HealthUI.ClinicalAuthorizationAccountsIntroView"].waitForExistence(timeout: timeout) else {
+            if !requireSheetToAppear {
+                // the sheet did not show up, and we're fine with that.
+                return
+            } else {
+                XCTFail("No Health Records permissions sheet appeared within the timeout (\(timeout) sec)")
+                return
+            }
+        }
         
-        XCTAssertTrue(systemUnderTest.buttons["Next"].waitForExistence(timeout: 5))
+        XCTAssertTrue(systemUnderTest.buttons["Next"].waitForExistence(timeout: 2))
         systemUnderTest.buttons["Next"].tap()
         
-        if !systemUnderTest.staticTexts[account.locationName].waitForExistence(timeout: 5) {
-            XCTAssertTrue(systemUnderTest.staticTexts["Add Account"].waitForExistence(timeout: 5))
+        for account in accounts {
+            guard !systemUnderTest.staticTexts[account.locationName].waitForExistence(timeout: 2) else {
+                continue
+            }
+            XCTAssertTrue(systemUnderTest.staticTexts["Add Account"].waitForExistence(timeout: 2))
             systemUnderTest.staticTexts["Add Account"].tap()
             
             handleHealthAppOnboardingIfNecessary(healthApp)
             
-            if healthApp.buttons["UIA.Health.SuggestedAction.SetUpClinicalRecords.PrimaryButton"].waitForExistence(timeout: 5) {
-                healthApp.buttons["UIA.Health.SuggestedAction.SetUpClinicalRecords.PrimaryButton"].tap()
+            // if we're adding multiple accounts, and are going back and forth between the app being tested and the Health app,
+            // only the first time an account is added will the "welcome to clinical records" sheet actually be shown...
+            if case let button = healthApp.buttons["UIA.Health.SuggestedAction.SetUpClinicalRecords.PrimaryButton"],
+               button.waitForExistence(timeout: 5),
+               button.isHittable {
+                button.tap()
             }
             
             let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
@@ -126,38 +145,38 @@ extension XCTestCase {
                 allowButton.tap()
             }
             
-            XCTAssertTrue(healthApp.staticTexts[account.institutionName].waitForExistence(timeout: 5))
+            XCTAssertTrue(healthApp.staticTexts[account.institutionName].waitForExistence(timeout: 2))
             healthApp.staticTexts[account.institutionName].tap()
             
-            XCTAssertTrue(healthApp.staticTexts["Connect Account"].waitForExistence(timeout: 5))
+            XCTAssertTrue(healthApp.staticTexts["Connect Account"].waitForExistence(timeout: 2))
             healthApp.staticTexts["Connect Account"].tap()
             
-            XCTAssertTrue(healthApp.staticTexts["Done"].waitForExistence(timeout: 5))
+            XCTAssertTrue(healthApp.staticTexts["Done"].waitForExistence(timeout: 2))
             healthApp.staticTexts["Done"].tap()
         }
         
-        for _ in 0...1 {
-            XCTAssertTrue(systemUnderTest.buttons["Next"].waitForExistence(timeout: 5))
+        for _ in 0..<2 {
+            XCTAssertTrue(systemUnderTest.buttons["Next"].waitForExistence(timeout: 2))
             systemUnderTest.buttons["Next"].tap()
         }
         
         HealthRecordType.allCases.forEach {
-            if !systemUnderTest.switches[$0.description].waitForExistence(timeout: 5) {
+            if !systemUnderTest.switches[$0.description].waitForExistence(timeout: 2) {
                 systemUnderTest.swipeDown()
-                XCTAssertTrue(systemUnderTest.switches[$0.description].waitForExistence(timeout: 5))
+                XCTAssertTrue(systemUnderTest.switches[$0.description].waitForExistence(timeout: 2))
             }
             systemUnderTest.switches[$0.description].tap()
         }
         
-        XCTAssertTrue(systemUnderTest.buttons["Share"].waitForExistence(timeout: 5))
+        XCTAssertTrue(systemUnderTest.buttons["Share"].waitForExistence(timeout: 2))
         systemUnderTest.buttons["Share"].tap()
         
         if automaticallyShareUpdates {
-            XCTAssertTrue(systemUnderTest.staticTexts["Automatically Share"].waitForExistence(timeout: 5))
+            XCTAssertTrue(systemUnderTest.staticTexts["Automatically Share"].waitForExistence(timeout: 2))
             systemUnderTest.staticTexts["Automatically Share"].tap()
         }
         
-        XCTAssertTrue(systemUnderTest.buttons["Done"].waitForExistence(timeout: 5))
+        XCTAssertTrue(systemUnderTest.buttons["Done"].waitForExistence(timeout: 2))
         systemUnderTest.buttons["Done"].tap()
     }
 }
