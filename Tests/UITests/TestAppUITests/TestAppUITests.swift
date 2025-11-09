@@ -31,9 +31,10 @@ class TestAppUITests: XCTestCase {
     func testXCTHealthRecordsAsk() throws {
         let app = XCUIApplication()
         app.deleteAndLaunch(withSpringboardAppName: "TestApp")
-        
+        XCTAssert(app.staticTexts["# clinical records, 0"].waitForExistence(timeout: 2))
         app.buttons["Request HealthKit Health Records Authorization"].tap()
         handleHealthRecordsAuthorization()
+        XCTAssert(app.staticTexts["# clinical records, 33"].waitForExistence(timeout: 5))
     }
     
     @MainActor
