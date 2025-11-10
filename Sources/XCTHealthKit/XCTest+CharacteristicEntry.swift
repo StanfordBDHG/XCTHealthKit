@@ -195,7 +195,15 @@ extension XCTestCase {
         
         healthApp.navigationBars["Health Details"].buttons["Done"].tap()
         healthApp.navigationBars["Health Details"].buttons["Profile"].tap()
-        healthApp.navigationBars.firstMatch.buttons["close"].tap()
+        let doneButton = healthApp.navigationBars.firstMatch.buttons["Done"]
+        let closeButton = healthApp.navigationBars.firstMatch.buttons["close"]
+        if doneButton.exists {
+            doneButton.tap()
+        } else if closeButton.exists {
+            closeButton.tap()
+        } else {
+            XCTFail("Unable to find done/close button")
+        }
     }
 }
 
