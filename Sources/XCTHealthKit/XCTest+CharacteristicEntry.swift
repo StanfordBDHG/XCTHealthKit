@@ -195,7 +195,7 @@ extension XCTestCase {
         
         healthApp.navigationBars["Health Details"].buttons["Done"].tap()
         healthApp.navigationBars["Health Details"].buttons["Profile"].tap()
-        healthApp.navigationBars.firstMatch.buttons["Done"].tap()
+        healthApp.navigationBars.firstMatch.buttons["close"].tap()
     }
 }
 
