@@ -20,7 +20,7 @@ extension XCTestCase {
     
     @MainActor
     func handleOnboarding(_ healthApp: XCUIApplication = .healthApp, alreadyRecursive: Bool = false) {
-        installHealthAppNotificationsAlertMonitor()
+        let monitor = installHealthAppNotificationsAlertMonitor()
         
         if healthApp.staticTexts["Welcome to Health"].waitForExistence(timeout: 5) {
             XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 5))
@@ -69,13 +69,15 @@ extension XCTestCase {
             healthApp.staticTexts["Continue"].tap()
             
             // Unfortunately it seems like the general notifications dialog triggerd as the function exists
-            // which doesn't trigger the IInterruptionMonitor or just exits too early.
-            // We manually also check for it's existance:
+            // which doesn't trigger the UInterruptionMonitor or just exits too early.
+            // We manually therefore wait for a second (even though it won't appear in the UI hierachy).
             let notificationsAllowButton = healthApp.alerts.buttons["Allow"]
             if notificationsAllowButton.waitForExistence(timeout: 1) {
                 notificationsAllowButton.tap()
             }
         }
+        
+        removeUIInterruptionMonitor(monitor)
     }
     
     
@@ -84,7 +86,7 @@ extension XCTestCase {
     public func installHealthAppNotificationsAlertMonitor() -> any NSObjectProtocol {
         self.addUIInterruptionMonitor(withDescription: "System Dialog") { alert in
             MainActor.assumeIsolated {
-                guard alert.title.matches(/.Health.Would Like to Send You Notifications/) else {
+                guard alert.title.matches(/.*Helath.*/) else {
                     // Not the Health app's Notification request alert.
                     return false
                 }
