@@ -67,6 +67,14 @@ extension XCTestCase {
             
             XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 5))
             healthApp.staticTexts["Continue"].tap()
+            
+            // Unfortunately it seems like the general notifications dialog triggerd as the function exists
+            // which doesn't trigger the IInterruptionMonitor or just exits too early.
+            // We manually also check for it's existance:
+            let notificationsAllowButton = healthApp.alerts.buttons["Allow"]
+            if notificationsAllowButton.waitForExistence(timeout: 1) {
+                notificationsAllowButton.tap()
+            }
         }
     }
     
