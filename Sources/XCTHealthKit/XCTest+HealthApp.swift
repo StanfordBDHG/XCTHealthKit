@@ -70,11 +70,8 @@ extension XCTestCase {
             
             // Unfortunately it seems like the general notifications dialog triggerd as the function exists
             // which triggers the UInterruptionMonitor but then exits this function too early and calls `removeUIInterruptionMonitor`.
-            // Therefore, we manually wait a bit here (even though it won't appear in the UI hierachy).
-            let notificationsAllowButton = healthApp.alerts.buttons["Allow"]
-            if notificationsAllowButton.waitForExistence(timeout: 5) {
-                notificationsAllowButton.tap()
-            }
+            // Therefore, we manually wait here for a bit.
+            sleep(5)
         }
         
         removeUIInterruptionMonitor(monitor)
