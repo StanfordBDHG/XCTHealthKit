@@ -86,8 +86,14 @@ extension XCTestCase {
     public func installHealthAppNotificationsAlertMonitor() -> any NSObjectProtocol {
         self.addUIInterruptionMonitor(withDescription: "System Dialog") { alert in
             MainActor.assumeIsolated {
-                guard alert.title.matches(/.*Helath.*/) else {
+                guard alert.staticTexts["“Health” Would Like to Send You Notifications"].exists else {
                     // Not the Health app's Notification request alert.
+                    print(
+                        """
+                        Got an UIInterruptionMonitor alert that is not from the Health App:
+                        \(alert.staticTexts)
+                        """
+                    )
                     return false
                 }
                 guard alert.buttons["Allow"].exists else {
@@ -98,12 +104,5 @@ extension XCTestCase {
                 return true
             }
         }
-    }
-}
-
-
-extension String {
-    func matches(_ regex: some RegexComponent) -> Bool {
-        self.firstMatch(of: regex) != nil
     }
 }
