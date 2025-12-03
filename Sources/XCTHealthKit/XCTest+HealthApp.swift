@@ -20,7 +20,7 @@ extension XCTestCase {
     
     @MainActor
     func handleOnboarding(_ healthApp: XCUIApplication = .healthApp, alreadyRecursive: Bool = false) {
-        installHealthAppNotificationsAlertMonitor()
+        let monitor = installHealthAppNotificationsAlertMonitor()
         
         if healthApp.staticTexts["Welcome to Health"].waitForExistence(timeout: 5) {
             XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 5))
@@ -67,7 +67,16 @@ extension XCTestCase {
             
             XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 5))
             healthApp.staticTexts["Continue"].tap()
+            
+            // Unfortunately it seems like the UInterruptionMonitor does not catch the alert here.
+            // Therefore, we have to manually see if it shows up here ...
+            let allowNotificationsButton = XCUIApplication(bundleIdentifier: "com.apple.springboard").alerts.buttons["Allow"]
+            if allowNotificationsButton.waitForExistence(timeout: 5) {
+                allowNotificationsButton.tap()
+            }
         }
+        
+        removeUIInterruptionMonitor(monitor)
     }
     
     
@@ -76,8 +85,14 @@ extension XCTestCase {
     public func installHealthAppNotificationsAlertMonitor() -> any NSObjectProtocol {
         self.addUIInterruptionMonitor(withDescription: "System Dialog") { alert in
             MainActor.assumeIsolated {
-                guard alert.title.matches(/.Health.Would Like to Send You Notifications/) else {
+                guard alert.staticTexts["“Health” Would Like to Send You Notifications"].exists else {
                     // Not the Health app's Notification request alert.
+                    print(
+                        """
+                        Got an UIInterruptionMonitor alert that is not from the Health App:
+                        \(alert.staticTexts)
+                        """
+                    )
                     return false
                 }
                 guard alert.buttons["Allow"].exists else {
@@ -88,12 +103,5 @@ extension XCTestCase {
                 return true
             }
         }
-    }
-}
-
-
-extension String {
-    func matches(_ regex: some RegexComponent) -> Bool {
-        self.firstMatch(of: regex) != nil
     }
 }
