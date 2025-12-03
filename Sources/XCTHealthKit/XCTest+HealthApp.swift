@@ -68,10 +68,12 @@ extension XCTestCase {
             XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 5))
             healthApp.staticTexts["Continue"].tap()
             
-            // Unfortunately it seems like the general notifications dialog triggered as the function exits
-            // which triggers the UInterruptionMonitor but then exits this function too early and calls `removeUIInterruptionMonitor`.
-            // Therefore, we manually wait here for a bit.
-            sleep(5)
+            // Unfortunately it seems like the UInterruptionMonitor does not catch the alert here.
+            // Therefore, we have to manually see if it shows up here ...
+            let allowNotificationsButton = XCUIApplication(bundleIdentifier: "com.apple.springboard").alerts.buttons["Allow"]
+            if allowNotificationsButton.waitForExistence(timeout: 5) {
+                allowNotificationsButton.tap()
+            }
         }
         
         removeUIInterruptionMonitor(monitor)
