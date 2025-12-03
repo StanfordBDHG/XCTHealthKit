@@ -160,7 +160,8 @@ extension XCUIApplication {
             return
         }
         
-        self.tables.staticTexts["Date"].tap() // present the data picker
+        // present the date picker
+        self.buttons["Date Picker"].coordinate(withNormalizedOffset: .init(dx: 0.9, dy: 0.5)).tap()
         
         let monthAndYearButton = app.buttons.matching(NSPredicate(format: "label LIKE[cd] %@", "month")).firstMatch
         if !monthAndYearButton.waitForExistence(timeout: 2) {
@@ -200,13 +201,13 @@ extension XCUIApplication {
             }
         }
         if let day = components.day {
-            let button = app.tables["UIA.Health.AddData.View"].cells["UIA.Health.AddData.DateCell"].staticTexts[String(day)]
+            let button = app.staticTexts[String(day)]
             if !button.waitForExistence(timeout: 1) {
                 XCTFail("Unable to find button to select day.")
             }
             button.tap()
         }
-        self.tables.staticTexts["Date"].tap() // dismiss the date picker
+        self.buttons["dismiss popup"].tap() // dismiss the date picker
     }
     
     
@@ -215,7 +216,10 @@ extension XCUIApplication {
             // there is nothing to be done
             return
         }
-        self.tables.staticTexts["Time"].tap() // present the time picker
+        
+        // present the time picker
+        self.buttons["Time Picker"].coordinate(withNormalizedOffset: .init(dx: 0.9, dy: 0.5)).tap()
+        
         XCTAssert(app.pickerWheels.firstMatch.waitForExistence(timeout: 1))
         let pickerWheels = app.pickers.firstMatch.pickerWheels.allElementsBoundByIndex
         if let hour = components.hour {
@@ -233,7 +237,7 @@ extension XCUIApplication {
         if let minute = components.minute {
             pickerWheels[1].adjust(toPickerWheelValue: String(format: "%02lld", minute))
         }
-        self.tables.staticTexts["Time"].tap() // dismiss the time picker
+        self.buttons["dismiss popup"].tap() // dismiss the time picker
     }
 }
 
@@ -246,11 +250,17 @@ extension XCUIElement {
     
     static func extractMonthAndYearComponents(_ input: String) -> (month: (value: Int, name: String), year: Int)? {
         let components = input.split(separator: " ")
+        
+        guard components.count == 2 else {
+            return nil
+        }
+        
         let monthText = String(components[0])
         guard let monthValue = Self.monthValue(for: monthText),
               let year = Int(components[1]) else {
             return nil
         }
+        
         return (month: (value: monthValue + 1, name: monthText), year: year)
     }
     

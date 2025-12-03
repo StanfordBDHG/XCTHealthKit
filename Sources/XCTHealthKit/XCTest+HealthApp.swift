@@ -68,7 +68,7 @@ extension XCTestCase {
             XCTAssertTrue(healthApp.staticTexts["Continue"].waitForExistence(timeout: 5))
             healthApp.staticTexts["Continue"].tap()
             
-            // Unfortunately it seems like the general notifications dialog triggerd as the function exists
+            // Unfortunately it seems like the general notifications dialog triggered as the function exits
             // which triggers the UInterruptionMonitor but then exits this function too early and calls `removeUIInterruptionMonitor`.
             // Therefore, we manually wait here for a bit.
             sleep(5)
