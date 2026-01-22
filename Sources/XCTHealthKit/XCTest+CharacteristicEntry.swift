@@ -63,12 +63,12 @@ extension XCTestCase {
     ) throws {
         let healthApp = XCUIApplication.healthApp
         healthApp.launch()
+        healthApp.terminate()
+        healthApp.launch()
         handleHealthAppOnboardingIfNecessary()
         
+        healthApp.tabBars.buttons["Summary"].tap() // make sure we're on the first tab
         let profileButton = healthApp.buttons["Profile"]
-        if !profileButton.waitForExistence(timeout: 2) {
-            healthApp.tabBars.buttons["Summary"].tap()
-        }
         XCTAssert(profileButton.waitForExistence(timeout: 2))
         profileButton.tryToTapReallySoftlyMaybeThisWillMakeItWork()
         sleep(1) // wait a second to make sure the sheet has fully appeared
