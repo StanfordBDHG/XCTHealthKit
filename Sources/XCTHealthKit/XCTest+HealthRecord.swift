@@ -135,7 +135,7 @@ extension XCTestCase {
             // only the first time an account is added will the "welcome to clinical records" sheet actually be shown...
             do {
                 let button = healthApp.buttons["UIA.Health.SuggestedAction.SetUpClinicalRecords.PrimaryButton"]
-                if button.waitForExistence(timeout: 5) {
+                if button.waitForExistence(timeout: 5), button.isHittable {
                     button.tryToTapReallySoftlyMaybeThisWillMakeItWork()
                 }
             }
