@@ -131,12 +131,14 @@ extension XCTestCase {
             
             handleHealthAppOnboardingIfNecessary(healthApp)
             
+            let getStartedButton = healthApp.buttons["UIA.Health.SuggestedAction.SetUpClinicalRecords.PrimaryButton"]
+            let addInstitutionButton = healthApp.staticTexts[account.institutionName]
+            
             // if we're adding multiple accounts, and are going back and forth between the app being tested and the Health app,
             // only the first time an account is added will the "welcome to clinical records" sheet actually be shown...
-            if case let button = healthApp.buttons["UIA.Health.SuggestedAction.SetUpClinicalRecords.PrimaryButton"],
-               button.waitForExistence(timeout: 5),
-               button.isHittable {
-                button.tap()
+            if getStartedButton.waitForExistence(timeout: 2), getStartedButton.isHittable,
+               !(healthApp.staticTexts["Suggestions"].waitForExistence(timeout: 2) && addInstitutionButton.waitForExistence(timeout: 2)) {
+                getStartedButton.tap()
             }
             
             let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
@@ -145,8 +147,8 @@ extension XCTestCase {
                 allowButton.tap()
             }
             
-            XCTAssertTrue(healthApp.staticTexts[account.institutionName].waitForExistence(timeout: 2))
-            healthApp.staticTexts[account.institutionName].tap()
+            XCTAssertTrue(addInstitutionButton.waitForExistence(timeout: 2))
+            addInstitutionButton.tap()
             
             XCTAssertTrue(healthApp.staticTexts["Connect Account"].waitForExistence(timeout: 2))
             healthApp.staticTexts["Connect Account"].tap()
