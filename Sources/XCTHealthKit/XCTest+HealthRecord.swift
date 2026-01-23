@@ -146,8 +146,8 @@ extension XCTestCase {
                 allowButton.tap()
             }
             
-            XCTAssertTrue(healthApp.staticTexts[account.institutionName].waitForExistence(timeout: 2))
-            healthApp.staticTexts[account.institutionName].tap()
+            XCTAssertTrue(addInstitutionButton.waitForExistence(timeout: 2))
+            addInstitutionButton.tap()
             
             XCTAssertTrue(healthApp.staticTexts["Connect Account"].waitForExistence(timeout: 2))
             healthApp.staticTexts["Connect Account"].tap()
