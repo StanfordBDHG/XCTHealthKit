@@ -136,7 +136,7 @@ extension XCTestCase {
             
             // if we're adding multiple accounts, and are going back and forth between the app being tested and the Health app,
             // only the first time an account is added will the "welcome to clinical records" sheet actually be shown...
-            if getStartedButton.waitForExistence(timeout: 2), getStartedButton.isHittable,
+            if getStartedButton.waitForExistence(timeout: 2), // getStartedButton.isHittable,
                !(healthApp.staticTexts["Suggestions"].waitForExistence(timeout: 2) && addInstitutionButton.waitForExistence(timeout: 2)) {
                 getStartedButton.tap()
             }
