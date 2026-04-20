@@ -11,34 +11,9 @@ import XCTestExtensions
 import XCTHealthKit
 
 
-class TestAppUITests: XCTestCase {
-    override func setUp() {
-        super.setUp()
-        continueAfterFailure = false
-        installHealthAppNotificationsAlertMonitor()
-    }
-    
+final class OtherTests: XCTHealthKitTestCase {
     @MainActor
-    func testXCTHealthKitAsk() {
-        let app = XCUIApplication()
-        app.deleteAndLaunch(withSpringboardAppName: "TestApp")
-        
-        app.buttons["Request HealthKit Authorization"].tap()
-        app.handleHealthKitAuthorization()
-    }
-    
-    @MainActor
-    func testXCTHealthRecordsAsk() throws {
-        let app = XCUIApplication()
-        app.deleteAndLaunch(withSpringboardAppName: "TestApp")
-        XCTAssert(app.staticTexts["# clinical records, 0"].waitForExistence(timeout: 2))
-        app.buttons["Request HealthKit Health Records Authorization"].tap()
-        handleHealthRecordsAuthorization()
-        XCTAssert(app.staticTexts["# clinical records, 33"].waitForExistence(timeout: 5))
-    }
-    
-    @MainActor
-    func testXCTHealthKitAddSamples1() throws {
+    func testAddSamples1() throws {
         let healthApp = XCUIApplication.healthApp
         try launchAndAddSample(.electrocardiogram())
         try launchAndAddSample(.steps())
@@ -50,7 +25,7 @@ class TestAppUITests: XCTestCase {
     }
     
     @MainActor
-    func testXCTHealthKitAddSamples2() throws {
+    func testAddSamples2() throws {
         let healthApp = XCUIApplication.healthApp
         try launchAndAddSamples([.electrocardiogram(), .steps()])
         healthApp.terminate()
