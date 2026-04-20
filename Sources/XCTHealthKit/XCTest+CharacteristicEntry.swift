@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: MIT
 //
 
-
+import Foundation
 import HealthKit
 import XCTest
 
@@ -84,14 +84,17 @@ extension XCTestCase {
             // which could be completely different, but it's the best we've got.
             let pickerWheelsMapping: [Calendar.Component: Int]
             let dayFormatString: String
-            switch Locale.current.identifier {
-            case "en_US":
+            switch Locale.current.dateOrder {
+            case .mdy:
                 pickerWheelsMapping = [.month: 0, .day: 1, .year: 2]
                 dayFormatString = "%lld"
-            default:
-                // If we're not running in the en_US locale, we just assume day/month/year
+            case .dmy:
                 pickerWheelsMapping = [.day: 0, .month: 1, .year: 2]
                 dayFormatString = "%lld."
+            case .ymd, .other:
+                throw XCTestError(.failureWhileWaiting, userInfo: [
+                    NSLocalizedDescriptionKey: "Unsupported date order \(Locale.current.dateOrder)"
+                ])
             }
             if let month = dateOfBirth.month {
                 picker.pickerWheels
@@ -220,6 +223,34 @@ extension XCUIElement {
             tap()
         } else {
             coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        }
+    }
+}
+
+
+extension Locale {
+    enum DateOrder {
+        case mdy
+        case dmy
+        case ymd
+        case other(String)
+    }
+    
+    var dateOrder: DateOrder {
+        let fmt = DateFormatter.dateFormat(fromTemplate: "yMd", options: 0, locale: self) ?? ""
+        let order = fmt.compactMap { c -> Character? in
+            switch c {
+            case "y": "y"
+            case "M", "L": "M"
+            case "d": "d"
+            default: nil
+            }
+        }
+        return switch order {
+        case ["M", "d", "y"]: .mdy
+        case ["d", "M", "y"]: .dmy
+        case ["y", "M", "d"]: .ymd
+        default: .other(String(order))
         }
     }
 }
