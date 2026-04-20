@@ -238,8 +238,8 @@ extension Locale {
     
     var dateOrder: DateOrder {
         let fmt = DateFormatter.dateFormat(fromTemplate: "yMd", options: 0, locale: self) ?? ""
-        let order = fmt.compactMap { c -> Character? in
-            switch c {
+        let order = fmt.compactMap { char -> Character? in
+            switch char {
             case "y": "y"
             case "M", "L": "M"
             case "d": "d"
