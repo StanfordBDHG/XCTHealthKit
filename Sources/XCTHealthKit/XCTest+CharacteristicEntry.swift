@@ -67,11 +67,20 @@ extension XCTestCase {
         healthApp.launch()
         handleHealthAppOnboardingIfNecessary()
         
-        healthApp.tabBars.buttons["Summary"].tap() // make sure we're on the first tab
-        let profileButton = healthApp.buttons["Profile"]
-        XCTAssert(profileButton.waitForExistence(timeout: 2))
-        profileButton.tryToTapReallySoftlyMaybeThisWillMakeItWork()
-        sleep(1) // wait a second to make sure the sheet has fully appeared
+        for attempt in 0..<2 {
+            healthApp.tabBars.buttons["Summary"].tap() // make sure we're on the first tab
+            let profileButton = healthApp.buttons["Profile"]
+            XCTAssert(profileButton.waitForExistence(timeout: 2))
+            profileButton.tryToTapReallySoftlyMaybeThisWillMakeItWork()
+            sleep(1) // wait a second to make sure the sheet has fully appeared
+            if healthApp.cells["Health Details"].waitForExistence(timeout: 5) {
+                break
+            } else if attempt == 0 && XCTestCase.isIOS27OrGreater {
+                // The Health app restores its previous state when launched, which might include a still-presented
+                // profile sheet (potentially with some other page pushed onto it), which we need to dismiss first.
+                healthApp.dismissPresentedSheetIOS27()
+            }
+        }
         healthApp.cells["Health Details"].tap()
         sleep(1) // wait a second to make sure the "Health Details" view has been presented.
         healthApp.navigationBars["Health Details"].buttons["Edit"].tap()
@@ -201,10 +210,17 @@ extension XCTestCase {
         }
         
         healthApp.navigationBars["Health Details"].buttons["Done"].tap()
-        healthApp.navigationBars["Health Details"].buttons["Profile"].tap()
+        // From iOS 27 on, the back button is identified as "BackButton", with "Profile" as its label.
+        let profileBackButton = healthApp.navigationBars.buttons
+            .matching(NSPredicate(format: "identifier == 'Profile' OR label == 'Profile'"))
+            .firstMatch
+        XCTAssert(profileBackButton.waitForExistence(timeout: 5))
+        profileBackButton.tap()
         let doneButton = healthApp.navigationBars.firstMatch.buttons["Done"]
-        let closeButton = healthApp.navigationBars.firstMatch.buttons["close"]
-        if doneButton.exists {
+        let closeButton = healthApp.navigationBars.buttons
+            .matching(NSPredicate(format: "identifier ==[c] 'close' OR label ==[c] 'close'"))
+            .firstMatch
+        if doneButton.waitForExistence(timeout: 2) {
             doneButton.tap()
         } else if closeButton.exists {
             closeButton.tap()

@@ -45,12 +45,23 @@ extension NewHealthSampleInput.EnterSampleValueHandler {
     public static func enterSimpleNumericValue(_ value: Double, inTextField textFieldPredicate: NSPredicate? = nil) -> Self {
         nonisolated(unsafe) let textFieldPredicate = textFieldPredicate
         return Self { _, healthApp in
-            let dataEntryTable = healthApp.tables["UIA.Health.AddData.View"]
             let textField: XCUIElement
-            if let textFieldPredicate {
-                textField = dataEntryTable.textFields.matching(textFieldPredicate).firstMatch
+            if XCTestCase.isIOS27OrGreater {
+                // From iOS 27 on, the data entry sheet is a collection view, and the value's text field is identified as
+                // "UIA.Health.AddData.View" and has no label (the unit is a separate static text next to it).
+                let textFields = healthApp.collectionViews.textFields.matching(identifier: "UIA.Health.AddData.View")
+                if let textFieldPredicate, textFields.matching(textFieldPredicate).firstMatch.waitForExistence(timeout: 2) {
+                    textField = textFields.matching(textFieldPredicate).firstMatch
+                } else {
+                    textField = textFields.firstMatch
+                }
             } else {
-                textField = dataEntryTable.cells["UIA.Health.AddData.ValueCell"].textFields.firstMatch
+                let dataEntryTable = healthApp.tables["UIA.Health.AddData.View"]
+                if let textFieldPredicate {
+                    textField = dataEntryTable.textFields.matching(textFieldPredicate).firstMatch
+                } else {
+                    textField = dataEntryTable.cells["UIA.Health.AddData.ValueCell"].textFields.firstMatch
+                }
             }
             XCTAssert(textField.waitForExistence(timeout: 2))
             textField.tap()
@@ -91,8 +102,15 @@ extension NewHealthSampleInput {
     /// Creates a new Electrocardiogram sample input, with the specified values
     public static func electrocardiogram() -> Self {
         .init(sampleType: .electrocardiograms, date: nil, enterSampleValueHandler: .custom { _, app in
-            XCTAssert(app.tables.staticTexts["High Heart Rate"].firstMatch.waitForExistence(timeout: 2))
-            app.tables.staticTexts["High Heart Rate"].firstMatch.tap()
+            // Before iOS 27, the options are listed in a table; from iOS 27 on, they are in a collection view.
+            // (We need to make sure to only match the sheet's option, rather than any previously-added samples in the page behind it.)
+            let highHeartRate = if XCTestCase.isIOS27OrGreater {
+                app.staticTexts.matching(NSPredicate(format: "identifier == %@ AND label == %@", "UIA.Health.AddData.View", "High Heart Rate")).firstMatch
+            } else {
+                app.tables.staticTexts["High Heart Rate"].firstMatch
+            }
+            XCTAssert(highHeartRate.waitForExistence(timeout: 2))
+            highHeartRate.tap()
         })
     }
     
@@ -117,14 +135,27 @@ extension NewHealthSampleInput {
     @MainActor
     func create(in healthApp: XCUIApplication) throws {
         let navBar = healthApp.navigationBars[sampleType.healthAppDisplayTitle]
-        let addDataButton = if XCTestCase.isIOS26OrGreater {
-            navBar.buttons["UIA.Health.BarItem.Add.Button"]
+        let addDataButton: XCUIElement
+        let categoryBackButton: XCUIElement
+        if XCTestCase.isIOS27OrGreater {
+            // On iOS 27, the back button is identified as "BackButton" (with the category as its label),
+            // and the button for adding data isn't necessarily part of the navigation bar.
+            addDataButton = healthApp.buttons
+                .matching(NSPredicate(format: "identifier == 'UIA.Health.BarItem.Add.Button' OR label == 'Add Data'"))
+                .firstMatch
+            categoryBackButton = navBar.buttons
+                .matching(NSPredicate(format: "label == %@", sampleType.category.healthAppDisplayTitle))
+                .firstMatch
+        } else if XCTestCase.isIOS26OrGreater {
+            addDataButton = navBar.buttons["UIA.Health.BarItem.Add.Button"]
+            categoryBackButton = navBar.buttons[sampleType.category.healthAppDisplayTitle]
         } else {
-            navBar.buttons["Add Data"]
+            addDataButton = navBar.buttons["Add Data"]
+            categoryBackButton = navBar.buttons[sampleType.category.healthAppDisplayTitle]
         }
-        guard navBar.exists,
-              navBar.buttons[sampleType.category.healthAppDisplayTitle].exists,
-              addDataButton.exists else {
+        guard navBar.waitForExistence(timeout: 10),
+              categoryBackButton.exists,
+              addDataButton.waitForExistence(timeout: 10) else {
             throw XCTSkip("Not at the right page")
         }
         addDataButton.tap()
@@ -137,7 +168,12 @@ extension NewHealthSampleInput {
         try enterSampleValueHandler.imp(self, healthApp)
         
         // Save the sample to the database.
-        if XCTestCase.isIOS26OrGreater {
+        if XCTestCase.isIOS27OrGreater {
+            // The sheet's navigation bar isn't necessarily the first one in the hierarchy.
+            let addButton = healthApp.buttons["UIA.Health.AddData.Add"]
+            addButton.tap()
+            XCTAssert(addButton.waitForNonExistence(timeout: 5), "The new sample sheet was not dismissed")
+        } else if XCTestCase.isIOS26OrGreater {
             healthApp.navigationBars.firstMatch.buttons["UIA.Health.AddData.Add"].tap()
         } else {
             healthApp.navigationBars.firstMatch.buttons["Add"].tap()
