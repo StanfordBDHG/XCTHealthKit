@@ -14,4 +14,5 @@ let logger = Logger(subsystem: "XCTHealthKit", category: "")
 
 extension XCTest {
     static let isIOS26OrGreater = ProcessInfo.processInfo.operatingSystemVersion.majorVersion >= 26
+    static let isIOS27OrGreater = ProcessInfo.processInfo.operatingSystemVersion.majorVersion >= 27
 }
