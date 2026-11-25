@@ -106,7 +106,9 @@ extension NewHealthSampleInput {
             // Before iOS 27, the options are listed in a table; from iOS 27 on, they are in a collection view.
             // (We need to make sure to only match the sheet's option, rather than any previously-added samples in the page behind it.)
             let highHeartRate = if XCTestCase.isIOS27OrGreater {
-                app.staticTexts.matching(NSPredicate(format: "identifier == %@ AND label == %@", "UIA.Health.AddData.View", "High Heart Rate")).firstMatch
+                app.staticTexts
+                    .matching(NSPredicate(format: "identifier == %@ AND label == %@", "UIA.Health.AddData.View", "High Heart Rate"))
+                    .firstMatch
             } else {
                 app.tables.staticTexts["High Heart Rate"].firstMatch
             }
