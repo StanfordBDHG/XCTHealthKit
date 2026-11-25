@@ -100,7 +100,9 @@ extension XCUIApplication {
         }
         if !sheet.waitForNonExistence(timeout: 10) {
             // The tap can land before the toggles commit, which leaves 'Allow' disabled and the tap a no-op.
-            allow.tap()
+            if allow.exists && allow.isHittable {
+                allow.tap()
+            }
             XCTAssert(sheet.waitForNonExistence(timeout: 10), "The Health permissions sheet did not dismiss")
         }
     }

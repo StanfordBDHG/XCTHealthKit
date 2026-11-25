@@ -50,7 +50,7 @@ extension NewHealthSampleInput.EnterSampleValueHandler {
                 // From iOS 27 on, the data entry sheet is a collection view, and the value's text field is identified as
                 // "UIA.Health.AddData.View" and has no label (the unit is a separate static text next to it).
                 let textFields = healthApp.collectionViews.textFields.matching(identifier: "UIA.Health.AddData.View")
-                if let textFieldPredicate, textFields.matching(textFieldPredicate).firstMatch.waitForExistence(timeout: 2) {
+                if let textFieldPredicate {
                     textField = textFields.matching(textFieldPredicate).firstMatch
                 } else {
                     textField = textFields.firstMatch
@@ -90,7 +90,8 @@ extension NewHealthSampleInput {
     public static func activeEnergy(value: Double = 52, date: DateComponents? = nil) -> Self {
         .init(sampleType: .activeEnergy, date: date, enterSampleValueHandler: .enterSimpleNumericValue(
             value,
-            inTextField: NSPredicate(format: "label LIKE[cd] %@ OR label LIKE[cd] %@", "cal", "kcal")
+            // From iOS 27 on, the value's text field has no label (the unit is a separate static text), so the first value field is used.
+            inTextField: XCTestCase.isIOS27OrGreater ? nil : NSPredicate(format: "label LIKE[cd] %@ OR label LIKE[cd] %@", "cal", "kcal")
         ))
     }
     
