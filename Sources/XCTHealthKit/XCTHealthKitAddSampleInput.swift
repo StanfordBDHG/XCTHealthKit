@@ -41,20 +41,23 @@ public struct NewHealthSampleInput {
 
 extension NewHealthSampleInput.EnterSampleValueHandler {
     /// Creates a new sample value input handler that inserts a numeric value into a text field.
-    /// - parameter textFieldPredicate: optional predicate allowing the caller to specify which exact text field the value should be inserted into
+    /// - parameter textFieldPredicate: optional predicate allowing the caller to specify which exact text field the value should be inserted into.
+    ///     From iOS 27 on, the value text fields have no label, so the predicate is matched against the elements of the field's cell (e.g., its unit).
     public static func enterSimpleNumericValue(_ value: Double, inTextField textFieldPredicate: NSPredicate? = nil) -> Self {
         nonisolated(unsafe) let textFieldPredicate = textFieldPredicate
         return Self { _, healthApp in
             let textField: XCUIElement
             if XCTestCase.isIOS27OrGreater {
                 // From iOS 27 on, the data entry sheet is a collection view, and the value's text field is identified as
-                // "UIA.Health.AddData.View" and has no label (the unit is a separate static text next to it).
-                let textFields = healthApp.collectionViews.textFields.matching(identifier: "UIA.Health.AddData.View")
-                if let textFieldPredicate {
-                    textField = textFields.matching(textFieldPredicate).firstMatch
+                // "UIA.Health.AddData.View" and has no label (the unit is a separate static text in the same cell).
+                // So the predicate selects the cell by any of its elements, e.g. the unit.
+                let valueCells = healthApp.collectionViews.cells.containing(.textField, identifier: "UIA.Health.AddData.View")
+                let valueCell = if let textFieldPredicate {
+                    valueCells.containing(textFieldPredicate).firstMatch
                 } else {
-                    textField = textFields.firstMatch
+                    valueCells.firstMatch
                 }
+                textField = valueCell.textFields.firstMatch
             } else {
                 let dataEntryTable = healthApp.tables["UIA.Health.AddData.View"]
                 if let textFieldPredicate {
@@ -90,8 +93,7 @@ extension NewHealthSampleInput {
     public static func activeEnergy(value: Double = 52, date: DateComponents? = nil) -> Self {
         .init(sampleType: .activeEnergy, date: date, enterSampleValueHandler: .enterSimpleNumericValue(
             value,
-            // From iOS 27 on, the value's text field has no label (the unit is a separate static text), so the first value field is used.
-            inTextField: XCTestCase.isIOS27OrGreater ? nil : NSPredicate(format: "label LIKE[cd] %@ OR label LIKE[cd] %@", "cal", "kcal")
+            inTextField: NSPredicate(format: "label LIKE[cd] %@ OR label LIKE[cd] %@", "cal", "kcal")
         ))
     }
     
