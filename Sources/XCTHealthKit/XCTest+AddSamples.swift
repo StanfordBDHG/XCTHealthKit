@@ -60,7 +60,9 @@ extension XCUIApplication {
     /// - Note: This function expects that no modals or sheets are currently presented.
     @MainActor
     public func goToBrowseTab() throws {
-        if XCTestCase.isIOS26OrGreater {
+        if XCTestCase.isIOS27OrGreater {
+            try goToBrowseTabIOS27()
+        } else if XCTestCase.isIOS26OrGreater {
             try assertIsHealthApp()
             if self.navigationBars["Search"].exists {
                 return
@@ -75,8 +77,12 @@ extension XCUIApplication {
                 }
             }
             searchTabBarButton.tap() // select the tab
-            if searchTabBarButton.isHittable {
-                searchTabBarButton.tap() // go back to the tab's root VC, if necessary
+            // Go back to the tab's root VC, if necessary.
+            // Note that the tab bar button can disappear once the tab is selected, so we only tap it again if we're not
+            // already at the root, and if the button still exists.
+            if !self.navigationBars["Search"].waitForExistence(timeout: 2),
+               searchTabBarButton.exists && searchTabBarButton.isHittable {
+                searchTabBarButton.tap()
             }
         } else {
             let browseTabBarButton = self.tabBars["Tab Bar"].buttons["Browse"]
@@ -86,6 +92,54 @@ extension XCUIApplication {
             browseTabBarButton.tap() // select the tab
             browseTabBarButton.tap() // go back to the tab's root VC, if necessary
         }
+    }
+    
+    /// iOS 27 brings back the "Browse" tab (in place of iOS 26's "Search" tab).
+    @MainActor
+    private func goToBrowseTabIOS27() throws {
+        try assertIsHealthApp()
+        let browseTabBarButton = self.tabBars.buttons
+            .matching(NSPredicate(format: "identifier == 'UIA.Health.Tab.Browse' OR label == 'Browse'"))
+            .firstMatch
+        // Note: we intentionally don't check `isHittable` here: on iOS 27, the tab bar buttons are reported as not hittable,
+        // even though they can be tapped just fine.
+        guard browseTabBarButton.waitForExistence(timeout: 10) else {
+            throw XCTHealthKitError("Unable to find 'Browse' tab bar item")
+        }
+        for _ in 0..<3 {
+            browseTabBarButton.tap() // select the tab
+            browseTabBarButton.tap() // go back to the tab's root VC, if necessary
+            if self.navigationBars["Browse"].waitForExistence(timeout: 3) {
+                return
+            }
+            // The Health app restores its previous state when launched, which might e.g. include the profile sheet
+            // (potentially with some other page pushed onto it), which would prevent us from switching tabs.
+            dismissPresentedSheetIOS27()
+        }
+        throw XCTHealthKitError("Unable to navigate to the 'Browse' tab")
+    }
+    
+    /// Attempts to dismiss a sheet that might currently be presented in the Health app, on iOS 27.
+    @MainActor
+    func dismissPresentedSheetIOS27() {
+        // pop any pages that have been pushed onto the sheet
+        for _ in 0..<5 {
+            let backButton = self.navigationBars.buttons["BackButton"].firstMatch
+            guard backButton.exists else {
+                break
+            }
+            backButton.tap()
+            _ = backButton.waitForNonExistence(timeout: 2)
+        }
+        let closeButton = self.navigationBars.buttons
+            .matching(NSPredicate(format: "identifier IN[c] {'Done', 'close'} OR label IN[c] {'Done', 'close'}"))
+            .firstMatch
+        if closeButton.exists {
+            closeButton.tap()
+        } else {
+            self.swipeDown(velocity: .fast)
+        }
+        _ = self.navigationBars.buttons.firstMatch.waitForExistence(timeout: 2)
     }
     
     /// - returns: `true` if the account sheet was dismissed, otherwise false.
